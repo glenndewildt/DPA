@@ -21,9 +21,14 @@ namespace DPA_Musicsheets.Managers
         }
 
         public NotenBalk arrayToNotenBalk(String[] lilypontArray) {
+            List<Noot> noten = new List<Noot>();
+            
             foreach (var token in lilypontArray) {
-                if (token == "c"|| token == "a" || token == "g" || token == "f" || token == "e" || token == "d" || token == "b")
+                if (token.Contains("c")|| token.Contains("a") || token.Contains("g") || token.Contains("f") || token.Contains("e") || token.Contains("d") || token.Contains("b"))
                 {
+                    var noot = new Noot();
+                    noot.tone = token;
+                    noten.Add(noot);
 
                 }
             }

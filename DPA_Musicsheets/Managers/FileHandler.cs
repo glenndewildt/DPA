@@ -91,7 +91,7 @@ namespace DPA_Musicsheets.Managers
             int previousNoteAbsoluteTicks = 0;
             double percentageOfBarReached = 0;
             bool startedNoteIsClosed = true;
-
+            NotenBalk notenBalk = new NotenBalk();
             for (int i = 0; i < sequence.Count(); i++)
             {
                 Track track = sequence[i];
@@ -116,9 +116,16 @@ namespace DPA_Musicsheets.Managers
                                     int tempo = (tempoBytes[0] & 0xff) << 16 | (tempoBytes[1] & 0xff) << 8 | (tempoBytes[2] & 0xff);
                                     _bpm = 60000000 / tempo;
                                     lilypondContent.AppendLine($"\\tempo 4={_bpm}");
-                                    NotenBalk notenBalk = new NotenBalk();
+                                    //create notenbalk
+                                    
                                     notenBalk.bpm = _bpm;
-                                    notenBalk.volgende = new Maat(4);
+                                    //create Maat and add him to the notenbalk
+                                    var maat = new Maat(4);
+                                    notenBalk.volgende = maat;
+                                    notenBalk.volgende.first = maat;
+                                    notenBalk.volgende.last = maat;
+                                    notenBalk.volgende.volgende = maat;
+                                  
 
                                     break;
                                 case MetaType.EndOfTrack:
@@ -134,7 +141,7 @@ namespace DPA_Musicsheets.Managers
                                         {
                                             lilypondContent.AppendLine("|");
                                             percentageOfBar = percentageOfBar - 1;
-                                            
+                                            //create new maat
                                         }
                                     }
                                     break;
@@ -150,9 +157,17 @@ namespace DPA_Musicsheets.Managers
                                     // Append the new note.
 
                                     lilypondContent.Append(GetNoteName(previousMidiKey, channelMessage.Data1));
-                                    
+                                    //create new noot
+                                  
                                     previousMidiKey = channelMessage.Data1;
                                     startedNoteIsClosed = false;
+
+                                    if (notenBalk.volgende.last.volgendeNoot == null)
+                                    {
+                                        notenBalk.volgende.last.volgendeNoot = new Noot() { duration = channelMessage.Data1 };
+
+                                    }
+
                                 }
                                 else if (!startedNoteIsClosed)
                                 {
@@ -168,6 +183,7 @@ namespace DPA_Musicsheets.Managers
                                         lilypondContent.AppendLine("|");
                                         percentageOfBarReached -= 1;
                                     }
+                                    //create  new maat
                                     startedNoteIsClosed = true;
                                 }
                                 else
@@ -185,6 +201,7 @@ namespace DPA_Musicsheets.Managers
             LoadLilypond(lilypondContent.ToString());
             Tokenizer tokenizer = new Tokenizer();
             var t = tokenizer.splitByString(lilypondContent.ToString());
+            tokenizer.arrayToNotenBalk(t);
         }
 
         private string GetNoteLength(int absoluteTicks, int nextNoteAbsoluteTicks, int division, int beatNote, int beatsPerBar, out double percentageOfBar)

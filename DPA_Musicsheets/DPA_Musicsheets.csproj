@@ -102,6 +102,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Managers\MidiSequenceEventArgs.cs" />
+    <Compile Include="Models\NoteBuilder.cs" />
     <Compile Include="Tokenizer\Tokenizer.cs" />
     <Compile Include="Managers\WPFStaffsEventArgs.cs" />
     <Compile Include="Managers\LilypondEventArgs.cs" />
