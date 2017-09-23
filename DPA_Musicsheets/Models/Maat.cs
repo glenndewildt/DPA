@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DPA_Musicsheets.Models
+﻿namespace DPA_Musicsheets.Models
 {
-
     class Maat
     {
         public Maat first;
@@ -21,9 +14,5 @@ namespace DPA_Musicsheets.Models
         public Maat(int duration) {
             this.duration = duration;
         }
-
-       
-
     }
-   
 }
