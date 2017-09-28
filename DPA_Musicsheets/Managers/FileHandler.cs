@@ -79,8 +79,9 @@ namespace DPA_Musicsheets.Managers
 
         public void LoadLilypond(string content)
         {
-            LilypondText = lilyLoader.CleanUpLilySource(content);
+            LilypondText = content;
 
+            content = lilyLoader.CleanUpLilySource(content);
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
 
             ReloadWPFFromLily(tokens);
