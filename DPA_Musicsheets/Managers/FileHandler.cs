@@ -39,6 +39,8 @@ namespace DPA_Musicsheets.Managers
         private int _bpm = 120;       // Aantal beatnotes per minute.
         private int _beatsPerBar;     // Aantal beatnotes per maat.
 
+        private LilyLoader lilyLoader = new LilyLoader();
+
         public void OpenFile(string fileName)
         {
             if (Path.GetExtension(fileName).EndsWith(".mid"))
@@ -66,11 +68,6 @@ namespace DPA_Musicsheets.Managers
             }
         }
 
-        public string CleanUpLilySource(string content)
-        {
-            return content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
-        }
-
         // clears, adds range and handles wfpstaffevent on lily load
         public void ReloadWPFFromLily(LinkedList<LilypondToken> tokens)
         {
@@ -82,7 +79,7 @@ namespace DPA_Musicsheets.Managers
 
         public void LoadLilypond(string content)
         {
-            LilypondText = CleanUpLilySource(content);
+            LilypondText = lilyLoader.CleanUpLilySource(content);
 
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
 

@@ -8,5 +8,9 @@ namespace DPA_Musicsheets.Managers
 {
     class LilyLoader
     {
+        public string CleanUpLilySource(string content)
+        {
+            return content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
+        }
     }
 }
