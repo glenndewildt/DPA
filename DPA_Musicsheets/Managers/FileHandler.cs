@@ -66,10 +66,15 @@ namespace DPA_Musicsheets.Managers
             }
         }
 
+        public string CleanUpLilySource(string content)
+        {
+            return content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
+        }
+
         public void LoadLilypond(string content)
         {
             LilypondText = content;
-            content = content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
+            content = CleanUpLilySource(content);
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
             WPFStaffs.Clear();
             string message;
