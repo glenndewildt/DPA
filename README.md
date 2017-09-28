@@ -9,3 +9,5 @@ Aanpassingen lokaal toevoegen: `git add -A`
 Aanpassingen committen: `git commit -m "je message"`
 
 Aanpassingen pushen: `git push` (eerste keer `git push -u origin master`)
+
+Externe aanpassingen downloaden (syncen): `git pull`
