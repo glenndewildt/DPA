@@ -71,15 +71,22 @@ namespace DPA_Musicsheets.Managers
             return content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
         }
 
-        public void LoadLilypond(string content)
+        // clears, adds range and handles wfpstaffevent on lily load
+        public void ReloadWPFFromLily(LinkedList<LilypondToken> tokens)
         {
-            LilypondText = content;
-            content = CleanUpLilySource(content);
-            LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
             WPFStaffs.Clear();
             string message;
             WPFStaffs.AddRange(GetStaffsFromTokens(tokens, out message));
             WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
+        }
+
+        public void LoadLilypond(string content)
+        {
+            LilypondText = CleanUpLilySource(content);
+
+            LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
+
+            ReloadWPFFromLily(tokens);
 
             MidiSequence = GetSequenceFromWPFStaffs();
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
