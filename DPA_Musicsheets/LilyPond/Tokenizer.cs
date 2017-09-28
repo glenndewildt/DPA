@@ -62,6 +62,11 @@ namespace DPA_Musicsheets.LilyPond
             // not impossible, but takes a lot of time for a very small feature
             @"\\relative c'"
         );
+        private TokenMatcher TOKEN_clef = new TokenMatcher(
+            tokenTypes.clef,
+            @"\\"
+        );
+
 
         public List<LilypondToken> TokenizeLilySource(string source)
         {
