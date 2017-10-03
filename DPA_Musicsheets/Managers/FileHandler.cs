@@ -41,6 +41,10 @@ namespace DPA_Musicsheets.Managers
 
         private LilyLoader lilyLoader = new LilyLoader();
 
+
+        /**
+         * Opening and handling files /is/ a good case for this file, FileHandler.
+         **/
         public void OpenFile(string fileName)
         {
             if (Path.GetExtension(fileName).EndsWith(".mid"))
