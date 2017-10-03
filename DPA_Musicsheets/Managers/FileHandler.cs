@@ -39,6 +39,12 @@ namespace DPA_Musicsheets.Managers
         private int _bpm = 120;       // Aantal beatnotes per minute.
         private int _beatsPerBar;     // Aantal beatnotes per maat.
 
+        private LilyLoader lilyLoader = new LilyLoader();
+
+
+        /**
+         * Opening and handling files /is/ a good case for this file, FileHandler.
+         **/
         public void OpenFile(string fileName)
         {
             if (Path.GetExtension(fileName).EndsWith(".mid"))
@@ -66,11 +72,9 @@ namespace DPA_Musicsheets.Managers
             }
         }
 
-        public void LoadLilypond(string content)
+        // clears, adds range and handles wfpstaffevent on lily load
+        public void ReloadWPFFromLily(LinkedList<LilypondToken> tokens)
         {
-            LilypondText = content;
-            content = content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
-            LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
             WPFStaffs.Clear();
             string message;
             WPFStaffs.AddRange(GetStaffsFromTokens(tokens, out message));
@@ -80,6 +84,12 @@ namespace DPA_Musicsheets.Managers
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
 
+        public void LoadLilypond(string content)
+        {
+            this.LilypondText = content;
+            ReloadWPFFromLily(lilyLoader.fromString(content));
+        }
+
         public void LoadMidi(Sequence sequence)
         {
             StringBuilder lilypondContent = new StringBuilder();
@@ -87,7 +97,7 @@ namespace DPA_Musicsheets.Managers
             lilypondContent.AppendLine("\\clef treble");
 
             int division = sequence.Division;
-            int previousMidiKey = 60; // Central C;
+            int previousMidiKey = 60; // Central C; 
             int previousNoteAbsoluteTicks = 0;
             double percentageOfBarReached = 0;
             bool startedNoteIsClosed = true;
@@ -406,7 +416,7 @@ namespace DPA_Musicsheets.Managers
             return symbols;
         }
         
-        private static LinkedList<LilypondToken> GetTokensFromLilypond(string content)
+        public static LinkedList<LilypondToken> GetTokensFromLilypond(string content)
         {
             var tokens = new LinkedList<LilypondToken>();
 
