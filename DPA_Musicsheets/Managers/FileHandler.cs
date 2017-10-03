@@ -92,6 +92,8 @@ namespace DPA_Musicsheets.Managers
             double percentageOfBarReached = 0;
             bool startedNoteIsClosed = true;
 
+            Staff staff = new Staff();
+
             for (int i = 0; i < sequence.Count(); i++)
             {
                 Track track = sequence[i];
@@ -116,6 +118,14 @@ namespace DPA_Musicsheets.Managers
                                     int tempo = (tempoBytes[0] & 0xff) << 16 | (tempoBytes[1] & 0xff) << 8 | (tempoBytes[2] & 0xff);
                                     _bpm = 60000000 / tempo;
                                     lilypondContent.AppendLine($"\\tempo 4={_bpm}");
+
+                                    //set tempo to Song(staff) and set time signature
+                                    staff.tempo = _bpm;
+                                    staff.timeSignature = new Tuple<int, int>(_beatNote,_beatsPerBar);
+                                    //create new measure
+                                   // staff.bars.Add(new Bar());
+                                   // staff.bars.Last().measures.Add(new Measure());
+
                                     break;
                                 case MetaType.EndOfTrack:
                                     if (previousNoteAbsoluteTicks > 0)
@@ -128,7 +138,12 @@ namespace DPA_Musicsheets.Managers
                                         percentageOfBarReached += percentageOfBar;
                                         if (percentageOfBarReached >= 1)
                                         {
+                                            
                                             lilypondContent.AppendLine("|");
+                                            //create new measure
+                                            staff.bars.Add(new Bar());
+                                            staff.bars.Last().measures.Add(new Measure());
+
                                             percentageOfBar = percentageOfBar - 1;
                                         }
                                     }
@@ -144,7 +159,12 @@ namespace DPA_Musicsheets.Managers
                                 {
                                     // Append the new note.
                                     lilypondContent.Append(GetNoteName(previousMidiKey, channelMessage.Data1));
-                                    
+                                    //create new note
+                                    Models.Note note = new Models.Note();
+                                    note.duration = channelMessage.Data1;
+                                    staff.bars.Last().measures.Last().notes.Add(note);
+
+
                                     previousMidiKey = channelMessage.Data1;
                                     startedNoteIsClosed = false;
                                 }
@@ -159,6 +179,8 @@ namespace DPA_Musicsheets.Managers
                                     percentageOfBarReached += percentageOfBar;
                                     if (percentageOfBarReached >= 1)
                                     {
+
+
                                         lilypondContent.AppendLine("|");
                                         percentageOfBarReached -= 1;
                                     }
@@ -361,7 +383,7 @@ namespace DPA_Musicsheets.Managers
 
                             previousNote = currentToken.Value[0];
 
-                            var note = new Note(currentToken.Value[0].ToString().ToUpper(), alter, previousOctave, (MusicalSymbolDuration)noteLength, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
+                            var note = new PSAMControlLibrary.Note(currentToken.Value[0].ToString().ToUpper(), alter, previousOctave, (MusicalSymbolDuration)noteLength, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
                             note.NumberOfDots += currentToken.Value.Count(c => c.Equals('.'));
 
                             symbols.Add(note);
@@ -485,7 +507,7 @@ namespace DPA_Musicsheets.Managers
                 switch (musicalSymbol.Type)
                 {
                     case MusicalSymbolType.Note:
-                        Note note = musicalSymbol as Note;
+                        PSAMControlLibrary.Note note = musicalSymbol as PSAMControlLibrary.Note;
 
                         // Calculate duration
                         double absoluteLength = 1.0 / (double)note.Duration;

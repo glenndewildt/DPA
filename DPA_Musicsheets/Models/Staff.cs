@@ -8,6 +8,9 @@ namespace DPA_Musicsheets.Models
 {
     class Staff
     {
-        public Bar[] bars;
+        public List<Bar> bars;
+        public int tempo;
+        public Tuple<int, int> timeSignature;
+
     }
 }

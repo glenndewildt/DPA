@@ -8,7 +8,6 @@ namespace DPA_Musicsheets.Models
 {
     class Measure
     {
-        public Note[] notes;
-        public Tuple<int, int> timeSignature;
+        public List<Note> notes;
     }
 }
