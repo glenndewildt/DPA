@@ -30,7 +30,13 @@ namespace DPA_Musicsheets.LilyPond
             Note,
             Rest,
             Bar,
-            Relative
+            Clef,
+            Relative,
+            Tempo,
+            Time,
+            Repeat,
+            Alternative,
+            Tilde
         }
 
         private TokenMatcher TOKEN_UNKNOWN = new TokenMatcher(
@@ -62,11 +68,35 @@ namespace DPA_Musicsheets.LilyPond
             // not impossible, but takes a lot of time for a very small feature
             @"\\relative c'"
         );
-        private TokenMatcher TOKEN_clef = new TokenMatcher(
-            tokenTypes.clef,
-            @"\\"
+        private TokenMatcher TOKEN_CLEF = new TokenMatcher(
+            tokenTypes.Clef,
+            @"\\clef treble"
         );
-
+        private TokenMatcher TOKEN_TEMPO = new TokenMatcher(
+            tokenTypes.Tempo,
+            // we explicitly assume that the file uses tempo 4=120
+            // you can extend it here if you want to, is not very 
+            @"\\tempo 4=120"
+        );
+        private TokenMatcher TOKEN_TIME = new TokenMatcher(
+            tokenTypes.Time,
+            @"\\time (?<a>\d+)/(?<b>\d+)"
+        );
+        private TokenMatcher TOKEN_REPEAT = new TokenMatcher(
+            tokenTypes.Repeat,
+            // we explicitly assume that the files uses repeat volta 2
+            // these can be easily parameterized using regex names
+            @"\\repeat volta 2"
+        );
+        private TokenMatcher TOKEN_ALTERNATIVE = new TokenMatcher(
+            tokenTypes.Alternative,
+            @"\\alternative"
+        );
+        // apologies for the name, the TILDE describes the token, not the musical or lilypond meaning of the token
+        private TokenMatcher TOKEN_TILDE = new TokenMatcher(
+            tokenTypes.Tilde,
+            @"~"
+        );
 
         public List<LilypondToken> TokenizeLilySource(string source)
         {
