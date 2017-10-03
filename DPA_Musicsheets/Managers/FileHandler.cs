@@ -82,11 +82,8 @@ namespace DPA_Musicsheets.Managers
 
         public void LoadLilypond(string content)
         {
-            LilypondText = content;
-
-            content = lilyLoader.CleanUpLilySource(content);
-            LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
-
+            this.LilypondText = content;
+            LinkedList<LilypondToken> tokens = lilyLoader.fromString(content);
             ReloadWPFFromLily(tokens);
         }
 
@@ -416,7 +413,7 @@ namespace DPA_Musicsheets.Managers
             return symbols;
         }
         
-        private static LinkedList<LilypondToken> GetTokensFromLilypond(string content)
+        public static LinkedList<LilypondToken> GetTokensFromLilypond(string content)
         {
             var tokens = new LinkedList<LilypondToken>();
 
