@@ -83,8 +83,7 @@ namespace DPA_Musicsheets.Managers
         public void LoadLilypond(string content)
         {
             this.LilypondText = content;
-            LinkedList<LilypondToken> tokens = lilyLoader.fromString(content);
-            ReloadWPFFromLily(tokens);
+            ReloadWPFFromLily(lilyLoader.fromString(content));
         }
 
         public void LoadMidi(Sequence sequence)
