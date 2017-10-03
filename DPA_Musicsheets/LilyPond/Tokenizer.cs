@@ -36,7 +36,9 @@ namespace DPA_Musicsheets.LilyPond
             Time,
             Repeat,
             Alternative,
-            Tilde
+            Tilde,
+            BraceOpen,
+            BraceClose
         }
 
         private TokenMatcher TOKEN_UNKNOWN = new TokenMatcher(
@@ -96,6 +98,14 @@ namespace DPA_Musicsheets.LilyPond
         private TokenMatcher TOKEN_TILDE = new TokenMatcher(
             tokenTypes.Tilde,
             @"~"
+        );
+        private TokenMatcher TOKEN_BRACE_OPEN = new TokenMatcher(
+            tokenTypes.BraceOpen,
+            @"{"
+        );
+        private TokenMatcher TOKEN_BRACE_CLOSE = new TokenMatcher(
+            tokenTypes.BraceClose,
+            @"}"
         );
 
         public List<LilypondToken> TokenizeLilySource(string source)
