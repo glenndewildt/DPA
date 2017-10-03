@@ -75,6 +75,9 @@ namespace DPA_Musicsheets.Managers
             string message;
             WPFStaffs.AddRange(GetStaffsFromTokens(tokens, out message));
             WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
+
+            MidiSequence = GetSequenceFromWPFStaffs();
+            MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
 
         public void LoadLilypond(string content)
@@ -85,9 +88,6 @@ namespace DPA_Musicsheets.Managers
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
 
             ReloadWPFFromLily(tokens);
-
-            MidiSequence = GetSequenceFromWPFStaffs();
-            MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
 
         public void LoadMidi(Sequence sequence)
@@ -97,7 +97,7 @@ namespace DPA_Musicsheets.Managers
             lilypondContent.AppendLine("\\clef treble");
 
             int division = sequence.Division;
-            int previousMidiKey = 60; // Central C;
+            int previousMidiKey = 60; // Central C; 
             int previousNoteAbsoluteTicks = 0;
             double percentageOfBarReached = 0;
             bool startedNoteIsClosed = true;
