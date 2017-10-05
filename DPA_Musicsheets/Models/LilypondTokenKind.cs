@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    public enum LilypondTokenKind
+    public enum TokenMatcher
     {
         Unknown,
         Note,

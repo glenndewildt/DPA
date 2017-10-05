@@ -336,9 +336,9 @@ namespace DPA_Musicsheets.Managers
                 {
                     switch (currentToken.TokenKind)
                     {
-                        case LilypondTokenKind.Unknown:
+                        case TokenMatcher.Unknown:
                             break;
-                        case LilypondTokenKind.Note:
+                        case TokenMatcher.Note:
                             // Length
                             int noteLength = Int32.Parse(Regex.Match(currentToken.Value, @"\d+").Value);
                             // Crosses and Moles
@@ -371,19 +371,19 @@ namespace DPA_Musicsheets.Managers
 
                             previousNote = currentToken.Value[0];
 
-                            var note = new Note(currentToken.Value[0].ToString().ToUpper(), alter, previousOctave, (MusicalSymbolDuration)noteLength, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
+                            var note = new PSAMControlLibrary.Note(currentToken.Value[0].ToString().ToUpper(), alter, previousOctave, (MusicalSymbolDuration)noteLength, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
                             note.NumberOfDots += currentToken.Value.Count(c => c.Equals('.'));
 
                             symbols.Add(note);
                             break;
-                        case LilypondTokenKind.Rest:
+                        case TokenMatcher.Rest:
                             var restLength = Int32.Parse(currentToken.Value[1].ToString());
                             symbols.Add(new Rest((MusicalSymbolDuration)restLength));
                             break;
-                        case LilypondTokenKind.Bar:
+                        case TokenMatcher.Bar:
                             symbols.Add(new Barline());
                             break;
-                        case LilypondTokenKind.Clef:
+                        case TokenMatcher.Clef:
                             currentToken = currentToken.NextToken;
                             if (currentToken.Value == "treble")
                                 currentClef = new Clef(ClefType.GClef, 2);
@@ -394,12 +394,12 @@ namespace DPA_Musicsheets.Managers
 
                             symbols.Add(currentClef);
                             break;
-                        case LilypondTokenKind.Time:
+                        case TokenMatcher.Time:
                             currentToken = currentToken.NextToken;
                             var times = currentToken.Value.Split('/');
                             symbols.Add(new TimeSignature(TimeSignatureType.Numbers, UInt32.Parse(times[0]), UInt32.Parse(times[1])));
                             break;
-                        case LilypondTokenKind.Tempo:
+                        case TokenMatcher.Tempo:
                             // Tempo not supported
                             break;
                         default:
@@ -429,23 +429,23 @@ namespace DPA_Musicsheets.Managers
 
                 switch (s)
                 {
-                    case "\\relative": token.TokenKind = LilypondTokenKind.Staff; break;
-                    case "\\clef": token.TokenKind = LilypondTokenKind.Clef; break;
-                    case "\\time": token.TokenKind = LilypondTokenKind.Time; break;
-                    case "\\tempo": token.TokenKind = LilypondTokenKind.Tempo; break;
-                    case "|": token.TokenKind = LilypondTokenKind.Bar; break;
-                    default: token.TokenKind = LilypondTokenKind.Unknown; break;
+                    case "\\relative": token.TokenKind = TokenMatcher.Staff; break;
+                    case "\\clef": token.TokenKind = TokenMatcher.Clef; break;
+                    case "\\time": token.TokenKind = TokenMatcher.Time; break;
+                    case "\\tempo": token.TokenKind = TokenMatcher.Tempo; break;
+                    case "|": token.TokenKind = TokenMatcher.Bar; break;
+                    default: token.TokenKind = TokenMatcher.Unknown; break;
                 }
 
                 token.Value = s;
 
-                if (token.TokenKind == LilypondTokenKind.Unknown && new Regex(@"[a-g][,'eis]*[0-9]+[.]*").IsMatch(s))
+                if (token.TokenKind == TokenMatcher.Unknown && new Regex(@"[a-g][,'eis]*[0-9]+[.]*").IsMatch(s))
                 {
-                    token.TokenKind = LilypondTokenKind.Note;
+                    token.TokenKind = TokenMatcher.Note;
                 }
-                else if (token.TokenKind == LilypondTokenKind.Unknown && new Regex(@"r.*?[0-9][.]*").IsMatch(s))
+                else if (token.TokenKind == TokenMatcher.Unknown && new Regex(@"r.*?[0-9][.]*").IsMatch(s))
                 {
-                    token.TokenKind = LilypondTokenKind.Rest;
+                    token.TokenKind = TokenMatcher.Rest;
                 }
 
                 if (tokens.Last != null)
@@ -495,7 +495,7 @@ namespace DPA_Musicsheets.Managers
                 switch (musicalSymbol.Type)
                 {
                     case MusicalSymbolType.Note:
-                        Note note = musicalSymbol as Note;
+                        PSAMControlLibrary.Note note = musicalSymbol as PSAMControlLibrary.Note;
 
                         // Calculate duration
                         double absoluteLength = 1.0 / (double)note.Duration;
