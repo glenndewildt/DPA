@@ -13,7 +13,7 @@ namespace DPA_Musicsheets.LilyPond
     {
         public class TokenMatcher
         {
-            string type;
+            public string type;
             public Regex matcher;
 
             public TokenMatcher(string type, string regexPattern)
@@ -34,35 +34,35 @@ namespace DPA_Musicsheets.LilyPond
             // <comma>      any number of comma's (a,4, a,,8)
             // <duration>   a4, a8, etc
             // <dot>        a4., a8.
-            @"(?<notename>[a-g](?<signature>es|is)?)(?<apostrophe>'*)(?<comma>,*)(?<duration>\d+)(?<dot>\.?)"
+            @"(?<notename>[a-g](?<signature>es|is)?)(?<apostrophe>'*)(?<comma>,*)(?<duration>\d+)(?<dot>\.?)" // checked and INCORRECT, 0 matches
         );
         private TokenMatcher TOKEN_REST = new TokenMatcher(
             "TOKEN_REST",
-            @"r(?<duration>\d+)"
+            @"r(?<duration>\d+)" // checked and INCORRECT, 0 matches
         );
         private TokenMatcher TOKEN_BAR = new TokenMatcher(
             "TOKEN_BAR",
-            @"\|"
+            @"\|" // checked and correct count
         );
         private TokenMatcher TOKEN_RELATIVE = new TokenMatcher(
             "TOKEN_RELATIVE",
             // we explicitly assume that the file uses c', supporting otherwise requires changing the TokenMatcher to some kind of composite pattern
             // not impossible, but takes a lot of time for a very small feature
-            @"\\relative c'"
+            @"\\relative c'" // checked and correct count
         );
         private TokenMatcher TOKEN_CLEF = new TokenMatcher(
             "TOKEN_CLEF",
-            @"\\clef treble"
+            @"\\clef treble" // checked and correct count
         );
         private TokenMatcher TOKEN_TEMPO = new TokenMatcher(
             "TOKEN_TEMPO",
             // we explicitly assume that the file uses tempo 4=120
             // you can extend it here if you want to, is not very 
-            @"\\tempo 4=120"
+            @"\\tempo 4=120" // checked and correct count
         );
         private TokenMatcher TOKEN_TIME = new TokenMatcher(
             "TOKEN_TIME",
-            @"\\time (?<a>\d+)/(?<b>\d+)"
+            @"\\time (?<a>\d+)/(?<b>\d+)" // checked and correct
         );
         private TokenMatcher TOKEN_REPEAT = new TokenMatcher(
             "TOKEN_REPEAT",
@@ -81,11 +81,11 @@ namespace DPA_Musicsheets.LilyPond
         );
         private TokenMatcher TOKEN_BRACE_OPEN = new TokenMatcher(
             "TOKEN_BRACE_OPEN",
-            @"{"
+            @"{" // checked and correct, although this one /is/ quite important, should check on a file with more than one group of braces
         );
         private TokenMatcher TOKEN_BRACE_CLOSE = new TokenMatcher(
             "TOKEN_BRACE_CLOSE",
-            @"}"
+            @"}" // checked and correct, although this one /is/ quite important, should check on a file with more than one group of braces
         );
 
         public Tokenizer()
@@ -103,19 +103,17 @@ namespace DPA_Musicsheets.LilyPond
             tokenMatchers.Add("TOKEN_BRACE_CLOSE", TOKEN_BRACE_CLOSE);
         }
 
-        public List<LilypondToken> TokenizeLilySource(string source)
+        public List<t_LilypondToken> TokenizeLilySource(string source)
         {
-            // split the lilypond source code on spaces
-            string[] strSpaceSplit = source.Split(null);
+            List<t_LilypondToken> tokens = new List<t_LilypondToken>();
 
-            List<LilypondToken> tokens = new List<LilypondToken>();
-
-            foreach (string strToken in strSpaceSplit)
+            foreach(KeyValuePair<string, TokenMatcher> kv in tokenMatchers)
             {
-                TokenMatcher type = GetTokenKind(strToken);
-
-                // returns {token, type}
-                tokens.Add(new LilypondToken(strToken, type));
+                Regex regex = kv.Value.matcher;
+                foreach (Match match in regex.Matches(source))
+                {
+                    tokens.Add(new t_LilypondToken(kv.Value.type, kv.Value, match));
+                }
             }
 
             return tokens;

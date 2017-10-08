@@ -87,6 +87,10 @@ namespace DPA_Musicsheets.Managers
         public void LoadLilypond(string content)
         {
             this.LilypondText = content;
+            // TODO: This is just a test!
+            LilyPond.Tokenizer tkn = new LilyPond.Tokenizer();
+            var a = tkn.TokenizeLilySource(content);
+
             ReloadWPFFromLily(lilyLoader.fromString(content));
         }
 
