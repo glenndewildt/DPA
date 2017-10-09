@@ -34,7 +34,7 @@ namespace DPA_Musicsheets.LilyPond
             // <comma>      any number of comma's (a,4, a,,8)
             // <duration>   a4, a8, etc
             // <dot>        a4., a8.
-            @"(?<notename>[a-g](?<signature>es|is)?)(?<apostrophe>'*)(?<comma>,*)(?<duration>\d+)(?<dot>\.?)" // checked and INCORRECT, 0 matches
+            @"(?<notename>[a-g](?<signature>(es|is)?))(?<apostrophe>'*)(?<comma>,*)(?<duration>\d+)(?<dot>\.?)" // checked and Correct, 101 matches, just like the input file! :D
         );
         private TokenMatcher TOKEN_REST = new TokenMatcher(
             "TOKEN_REST",
