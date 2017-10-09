@@ -111,33 +111,30 @@ namespace DPA_Musicsheets.LilyPond
 
         public List<t_LilypondToken> TokenizeLilySource(string source)
         {
+            string[] s_tokens = source.Split(null);
             List<t_LilypondToken> tokens = new List<t_LilypondToken>();
 
-            foreach(KeyValuePair<string, TokenMatcher> kv in tokenMatchers)
+            foreach (string s_token in s_tokens)
             {
-                Regex regex = kv.Value.matcher;
-                foreach (Match match in regex.Matches(source))
+                bool hasAMatch = false;
+                foreach (KeyValuePair<string, TokenMatcher> kv in tokenMatchers)
                 {
-                    tokens.Add(new t_LilypondToken(kv.Value.type, kv.Value, match));
+                    Regex regex = kv.Value.matcher;
+                    if (regex.IsMatch(s_token))
+                    {
+                        hasAMatch = true;
+                        tokens.Add(new t_LilypondToken(kv.Value.type, kv.Value, regex.Match(s_token)));
+                        break;
+                    }
+                }
+                if (!hasAMatch)
+                {
+                    // the third argument, the match, is nonsense in the unknown case.
+                    tokens.Add(new t_LilypondToken(s_token, TOKEN_UNKNOWN, TOKEN_UNKNOWN.matcher.Match(s_token)));
                 }
             }
 
             return tokens;
-        }
-
-        // takes in a space-split piece of lilypond source and returns the corresponding tokenmatcher
-        private TokenMatcher GetTokenKind(string token)
-        {
-            foreach (KeyValuePair<string, TokenMatcher> kv in tokenMatchers)
-            {
-                Regex regex = kv.Value.matcher;
-                if (regex.IsMatch(token))
-                {
-                    return kv.Value;
-                }
-            }
-
-            return null;
         }
     }
 }
