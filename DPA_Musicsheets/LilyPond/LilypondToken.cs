@@ -22,7 +22,6 @@ namespace DPA_Musicsheets.LilyPond
             this.match = m;
         }
 
-
         // just a debugging method
         public override string ToString()
         {
@@ -33,7 +32,7 @@ namespace DPA_Musicsheets.LilyPond
                 s += " with match `" + this.match.Value + "`";
             } else
             {
-                // the this.Token field contains the token value in when there was no regex match
+                // the this.Token field contains the token value when there was no regex match
                 s += ", was unable to find a match for `" + this.Token + "`";
             }
             return s;

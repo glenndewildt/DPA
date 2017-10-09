@@ -69,7 +69,7 @@ namespace DPA_Musicsheets.LilyPond
             "TOKEN_REPEAT",
             // we explicitly assume that the files uses repeat volta 2
             // these can be easily parameterized using regex names
-            @"\\repeat volta 2"
+            @"\\repeat" // original regex was @"\\repeat volta 2"
         );
         private TokenMatcher TOKEN_ALTERNATIVE = new TokenMatcher(
             "TOKEN_ALTERNATIVE",
