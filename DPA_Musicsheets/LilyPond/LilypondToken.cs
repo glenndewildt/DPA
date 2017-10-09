@@ -21,5 +21,22 @@ namespace DPA_Musicsheets.LilyPond
             this.Type = type;
             this.match = m;
         }
+
+
+        // just a debugging method
+        public override string ToString()
+        {
+            string s = "";
+            s += this.Type.type;
+            if (this.match.Success)
+            {
+                s += " with match `" + this.match.Value + "`";
+            } else
+            {
+                // the this.Token field contains the token value in when there was no regex match
+                s += ", was unable to find a match for `" + this.Token + "`";
+            }
+            return s;
+        }
     }
 }
