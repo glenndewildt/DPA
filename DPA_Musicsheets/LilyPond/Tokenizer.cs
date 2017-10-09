@@ -88,6 +88,10 @@ namespace DPA_Musicsheets.LilyPond
             "TOKEN_BRACE_CLOSE",
             @"}" // checked and correct, although this one /is/ quite important, should check on a file with more than one group of braces
         );
+        private TokenMatcher TOKEN_UNKNOWN = new TokenMatcher(
+            "TOKEN_UNKNOWN",
+            "UNKOWN-TOKEN-REGEX-DOESN'T-MATTER-AND-SHOULDN'T-MATCH"
+        );
 
         public Tokenizer()
         {
