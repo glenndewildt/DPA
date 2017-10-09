@@ -103,6 +103,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Lilypond\LilyTokenizer.cs" />
+    <Compile Include="Lilypond\LilypondParser.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
     <Compile Include="Managers\LilyLoader.cs" />
     <Compile Include="Managers\MidiSequenceEventArgs.cs" />
@@ -116,7 +118,7 @@
     <Compile Include="Models\Measure.cs" />
     <Compile Include="Models\Note.cs" />
     <Compile Include="Models\Staff.cs" />
-    <Compile Include="Lilypond\Tokenizer.cs" />
+    <Compile Include="Lilypond\LilyLexer.cs" />
     <Compile Include="ViewModels\MidiPlayerViewModel.cs" />
     <Compile Include="ViewModels\StaffsViewModel.cs" />
     <Compile Include="Views\MidiPlayerCtrl.xaml.cs">

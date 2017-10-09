@@ -111,7 +111,7 @@ namespace DPA_Musicsheets.LilyPond
 
         public List<t_LilypondToken> TokenizeLilySource(string source)
         {
-            string[] s_tokens = source.Split(null);
+            string[] s_tokens = Lilypond.LilyTokenizer.Tokenize(source);
             List<t_LilypondToken> tokens = new List<t_LilypondToken>();
 
             foreach (string s_token in s_tokens)
