@@ -48,21 +48,22 @@ namespace DPA_Musicsheets.LilyPond
             "TOKEN_RELATIVE",
             // we explicitly assume that the file uses c', supporting otherwise requires changing the TokenMatcher to some kind of composite pattern
             // not impossible, but takes a lot of time for a very small feature
-            @"\\relative c'" // checked and correct count
+            @"\\relative"
         );
         private TokenMatcher TOKEN_CLEF = new TokenMatcher(
             "TOKEN_CLEF",
-            @"\\clef treble" // checked and correct count
+            @"\\clef"
         );
         private TokenMatcher TOKEN_TEMPO = new TokenMatcher(
             "TOKEN_TEMPO",
             // we explicitly assume that the file uses tempo 4=120
             // you can extend it here if you want to, is not very 
-            @"\\tempo 4=120" // checked and correct count
+            @"\\tempo"
         );
         private TokenMatcher TOKEN_TIME = new TokenMatcher(
             "TOKEN_TIME",
-            @"\\time (?<a>\d+)/(?<b>\d+)" // checked and correct
+            @"\\time" // @"\\time (?<a>\d+)/(?<b>\d+)"
+                      // checked and correct
         );
         private TokenMatcher TOKEN_REPEAT = new TokenMatcher(
             "TOKEN_REPEAT",
