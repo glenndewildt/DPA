@@ -26,7 +26,7 @@ namespace DPA_Musicsheets.LilyPond
         private Dictionary<string, TokenMatcher> tokenMatchers = new Dictionary<string, TokenMatcher>();
 
         private TokenMatcher TOKEN_NOTE = new TokenMatcher(
-            "TOKEN",
+            "TOKEN_NOTE",
             // fresh, handcrafted regex that gives you the matches for
             // <name>       a, f, g, etc
             // <signature>  gis, fes, etc (atm, as and es aren't recognized, don't feel like fixing that, the example songs don't use it)
