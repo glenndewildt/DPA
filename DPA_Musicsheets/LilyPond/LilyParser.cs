@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Lilypond
 {
-    class LilypondParser
+    class LilyParser
     {
 
     }
