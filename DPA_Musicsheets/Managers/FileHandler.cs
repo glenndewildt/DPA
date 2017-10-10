@@ -1,4 +1,5 @@
 ﻿
+using DPA_Musicsheets.Builders;
 using DPA_Musicsheets.Models;
 using PSAMControlLibrary;
 using PSAMWPFControlLibrary;
@@ -27,6 +28,8 @@ namespace DPA_Musicsheets.Managers
             }
         }
         public List<MusicalSymbol> WPFStaffs { get; set; } = new List<MusicalSymbol>();
+        public Staff staff { get; set; } = new Staff();
+
         private static List<Char> notesorder = new List<Char> { 'c', 'd', 'e', 'f', 'g', 'a', 'b' };
 
         public Sequence MidiSequence { get; set; }
@@ -47,9 +50,15 @@ namespace DPA_Musicsheets.Managers
                 MidiSequence.Load(fileName);
                 MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
                 LoadMidi(MidiSequence);
+                string message;
+
+                LoadStaff(staff);
+
             }
             else if (Path.GetExtension(fileName).EndsWith(".ly"))
             {
+
+
                 StringBuilder sb = new StringBuilder();
                 foreach (var line in File.ReadAllLines(fileName))
                 {
@@ -71,15 +80,28 @@ namespace DPA_Musicsheets.Managers
             LilypondText = content;
             content = content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
+
             WPFStaffs.Clear();
-            string message;
-            WPFStaffs.AddRange(GetStaffsFromTokens(tokens, out message));
-            WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
+        //   string message;
+        //   WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
+        //   WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
 
             MidiSequence = GetSequenceFromWPFStaffs();
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
 
+        public void LoadStaff(Staff staff)
+        {
+           
+
+            WPFStaffs.Clear();
+               string message;
+               WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
+               WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
+
+            MidiSequence = GetSequenceFromWPFStaffs();
+            MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
+        }
         public void LoadMidi(Sequence sequence)
         {
             StringBuilder lilypondContent = new StringBuilder();
@@ -93,6 +115,10 @@ namespace DPA_Musicsheets.Managers
             bool startedNoteIsClosed = true;
 
             Staff staff = new Staff();
+            StafBuilder staffbuider = new StafBuilder();
+            MeasureBuilder measureBuilder = new MeasureBuilder();
+            NoteBuilder noteBuilder = new NoteBuilder();
+
 
             for (int i = 0; i < sequence.Count(); i++)
             {
@@ -120,11 +146,14 @@ namespace DPA_Musicsheets.Managers
                                     lilypondContent.AppendLine($"\\tempo 4={_bpm}");
 
                                     //set tempo to Song(staff) and set time signature
+                                    staffbuider.setTempo(_bpm);
+                                    staffbuider.setTimesignature(_beatNote, _beatsPerBar);
                                     staff.tempo = _bpm;
                                     staff.timeSignature = new Tuple<int, int>(_beatNote,_beatsPerBar);
-                                    //create new measure
-                                   // staff.bars.Add(new Bar());
-                                   // staff.bars.Last().measures.Add(new Measure());
+
+
+
+
 
                                     break;
                                 case MetaType.EndOfTrack:
@@ -140,11 +169,12 @@ namespace DPA_Musicsheets.Managers
                                         {
                                             
                                             lilypondContent.AppendLine("|");
-                                            //create new measure
-                                            staff.bars.Add(new Bar());
-                                            staff.bars.Last().measures.Add(new Measure());
-
+                                            
                                             percentageOfBar = percentageOfBar - 1;
+
+                                            //create new measure
+                                            staffbuider.addMeasure(measureBuilder.getResult());
+
                                         }
                                     }
                                     break;
@@ -155,14 +185,16 @@ namespace DPA_Musicsheets.Managers
                             var channelMessage = midiEvent.MidiMessage as ChannelMessage;
                             if (channelMessage.Command == ChannelCommand.NoteOn)
                             {
-                                if(channelMessage.Data2 > 0) // Data2 = loudness
+                                double percentageOfBar;
+                                if (channelMessage.Data2 > 0) // Data2 = loudness
                                 {
                                     // Append the new note.
                                     lilypondContent.Append(GetNoteName(previousMidiKey, channelMessage.Data1));
+                                   
                                     //create new note
-                                    Models.Note note = new Models.Note();
-                                    note.duration = channelMessage.Data1;
-                                    staff.bars.Last().measures.Last().notes.Add(note);
+                                    noteBuilder.setPitch(channelMessage.Data1);
+
+                                    measureBuilder.addNote(new Models.Note() { pitch = channelMessage.Data1, loudniss = 4 });
 
 
                                     previousMidiKey = channelMessage.Data1;
@@ -171,7 +203,6 @@ namespace DPA_Musicsheets.Managers
                                 else if (!startedNoteIsClosed)
                                 {
                                     // Finish the previous note with the length.
-                                    double percentageOfBar;
                                     lilypondContent.Append(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
                                     previousNoteAbsoluteTicks = midiEvent.AbsoluteTicks;
                                     lilypondContent.Append(" ");
@@ -183,22 +214,32 @@ namespace DPA_Musicsheets.Managers
 
                                         lilypondContent.AppendLine("|");
                                         percentageOfBarReached -= 1;
+                                        staffbuider.addMeasure(measureBuilder.getResult());
+
+
                                     }
                                     startedNoteIsClosed = true;
                                 }
                                 else
                                 {
+                                   
                                     lilypondContent.Append("r");
                                 }
                             }
                             break;
                     }
                 }
+
             }
 
             lilypondContent.Append("}");
 
             LoadLilypond(lilypondContent.ToString());
+
+            //get the staff result
+            Staff staffResult = staffbuider.getResult();
+            this.staff = staffResult;
+
         }
 
         private string GetNoteLength(int absoluteTicks, int nextNoteAbsoluteTicks, int division, int beatNote, int beatsPerBar, out double percentageOfBar)
@@ -270,6 +311,75 @@ namespace DPA_Musicsheets.Managers
 
             return duration + new String('.', dots);
         }
+        private int GetNoteLengthInt(int absoluteTicks, int nextNoteAbsoluteTicks, int division, int beatNote, int beatsPerBar, out double percentageOfBar)
+        {
+            int duration = 0;
+            int dots = 0;
+
+            double deltaTicks = nextNoteAbsoluteTicks - absoluteTicks;
+
+            if (deltaTicks <= 0)
+            {
+                percentageOfBar = 0;
+                return 0;
+            }
+
+            double percentageOfBeatNote = deltaTicks / division;
+            percentageOfBar = (1.0 / beatsPerBar) * percentageOfBeatNote;
+
+            for (int noteLength = 32; noteLength >= 1; noteLength -= 1)
+            {
+                double absoluteNoteLength = (1.0 / noteLength);
+
+                if (percentageOfBar <= absoluteNoteLength)
+                {
+                    if (noteLength < 2)
+                        noteLength = 2;
+
+                    int subtractDuration;
+
+                    if (noteLength == 32)
+                        subtractDuration = 32;
+                    else if (noteLength >= 16)
+                        subtractDuration = 16;
+                    else if (noteLength >= 8)
+                        subtractDuration = 8;
+                    else if (noteLength >= 4)
+                        subtractDuration = 4;
+                    else
+                        subtractDuration = 2;
+
+                    if (noteLength >= 17)
+                        duration = 32;
+                    else if (noteLength >= 9)
+                        duration = 16;
+                    else if (noteLength >= 5)
+                        duration = 8;
+                    else if (noteLength >= 3)
+                        duration = 4;
+                    else
+                        duration = 2;
+
+                    double currentTime = 0;
+
+                    while (currentTime < (noteLength - subtractDuration))
+                    {
+                        var addtime = 1 / ((subtractDuration / beatNote) * Math.Pow(2, dots));
+                        if (addtime <= 0) break;
+                        currentTime += addtime;
+                        if (currentTime <= (noteLength - subtractDuration))
+                        {
+                            dots++;
+                        }
+                        if (dots >= 4) break;
+                    }
+
+                    break;
+                }
+            }
+
+            return duration;
+        }
 
         private static string GetNoteName(int previousMidiKey, int midiKey)
         {
@@ -329,6 +439,13 @@ namespace DPA_Musicsheets.Managers
             }
 
             return name;
+        }
+
+        private static int getNoteOctave(int midiKey)
+        {
+            int octave = (midiKey / 12) - 1;
+            
+            return octave;
         }
 
         #region Staffs loading
@@ -427,7 +544,32 @@ namespace DPA_Musicsheets.Managers
 
             return symbols;
         }
-        
+
+        private static IEnumerable<MusicalSymbol> GetStaffsFromClass(Staff staff, out string message)
+        {
+            List<MusicalSymbol> symbols = new List<MusicalSymbol>();
+            message = "";
+
+                foreach (Measure m in staff.measures)
+                {
+
+                    foreach (Models.Note n in m.notes)
+                    {
+                        Clef currentClef = null;
+                        int previousOctave = 4;
+                        int noteLength = 4;
+                        int alter = 3;
+                        var note = new PSAMControlLibrary.Note(GetNoteName(n.pitch, n.pitch).ToUpper(), alter, getNoteOctave(n.pitch), (MusicalSymbolDuration)n.loudniss, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
+
+
+                        symbols.Add(note);
+                    }
+                    symbols.Add(new Barline());
+                }
+
+            return symbols;
+        }
+
         private static LinkedList<LilypondToken> GetTokensFromLilypond(string content)
         {
             var tokens = new LinkedList<LilypondToken>();
@@ -471,6 +613,8 @@ namespace DPA_Musicsheets.Managers
 
             return tokens;
         }
+
+ 
         #endregion Staffs loading
 
         #region Saving to files

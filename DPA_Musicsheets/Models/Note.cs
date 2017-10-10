@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    class Note
+   public class Note
     {
         public enum SIGNATURE { none, sharp, flat };
 
         public int duration;
+        public int loudniss;
+
         public int pitch;
         public bool isRest;
         public bool isDotted;
