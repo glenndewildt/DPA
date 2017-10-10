@@ -105,7 +105,7 @@
     </ApplicationDefinition>
     <Compile Include="Lilypond\LilyTokenizer.cs" />
     <Compile Include="Lilypond\LilyParser.cs" />
-    <Compile Include="Lilypond\LilypondToken.cs" />
+    <Compile Include="Lilypond\LilyToken.cs" />
     <Compile Include="Managers\LilyLoader.cs" />
     <Compile Include="Managers\MidiSequenceEventArgs.cs" />
     <Compile Include="Managers\WPFStaffsEventArgs.cs" />
