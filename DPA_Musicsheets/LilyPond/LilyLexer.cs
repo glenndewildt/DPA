@@ -95,6 +95,7 @@ namespace DPA_Musicsheets.LilyPond
 
         public Tokenizer()
         {
+            // add to internal dictionary to make it loopable
             tokenMatchers.Add("TOKEN_NOTE", TOKEN_NOTE);
             tokenMatchers.Add("TOKEN_REST", TOKEN_REST);
             tokenMatchers.Add("TOKEN_BAR", TOKEN_BAR);
