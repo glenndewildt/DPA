@@ -90,8 +90,6 @@ namespace DPA_Musicsheets.Managers
 
         public void LoadStaff(Staff staff)
         {
-
-
             WPFStaffs.Clear();
             string message;
             WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
@@ -100,6 +98,7 @@ namespace DPA_Musicsheets.Managers
             MidiSequence = GetSequenceFromWPFStaffs();
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
+
         public void LoadMidi(Sequence sequence)
         {
             StringBuilder lilypondContent = new StringBuilder();
@@ -116,7 +115,6 @@ namespace DPA_Musicsheets.Managers
             StafBuilder staffbuider = new StafBuilder();
             MeasureBuilder measureBuilder = new MeasureBuilder();
             NoteBuilder noteBuilder = new NoteBuilder();
-
 
             for (int i = 0; i < sequence.Count(); i++)
             {
@@ -148,11 +146,6 @@ namespace DPA_Musicsheets.Managers
                                     staffbuider.setTimesignature(_beatNote, _beatsPerBar);
                                     staff.tempo = _bpm;
                                     staff.timeSignature = new Tuple<int, int>(_beatNote, _beatsPerBar);
-
-
-
-
-
                                     break;
                                 case MetaType.EndOfTrack:
                                     if (previousNoteAbsoluteTicks > 0)
