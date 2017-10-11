@@ -11,7 +11,7 @@ namespace DPA_Musicsheets.Models
         public enum SIGNATURE { none, sharp, flat };
 
         public int duration;
-        public int loudniss;
+        public int loudness;
 
         public int pitch;
         public bool isRest;

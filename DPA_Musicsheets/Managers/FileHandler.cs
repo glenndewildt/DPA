@@ -62,7 +62,7 @@ namespace DPA_Musicsheets.Managers
                 {
                     sb.AppendLine(line);
                 }
-                
+
                 LilypondText = sb.ToString();
 
                 LoadLilypond(sb.ToString());
@@ -80,9 +80,9 @@ namespace DPA_Musicsheets.Managers
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
 
             WPFStaffs.Clear();
-        //   string message;
-        //   WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
-        //   WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
+            //   string message;
+            //   WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
+            //   WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
 
             MidiSequence = GetSequenceFromWPFStaffs();
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
@@ -90,12 +90,12 @@ namespace DPA_Musicsheets.Managers
 
         public void LoadStaff(Staff staff)
         {
-           
+
 
             WPFStaffs.Clear();
-               string message;
-               WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
-               WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
+            string message;
+            WPFStaffs.AddRange(GetStaffsFromClass(staff, out message));
+            WPFStaffsChanged?.Invoke(this, new WPFStaffsEventArgs() { Symbols = WPFStaffs, Message = message });
 
             MidiSequence = GetSequenceFromWPFStaffs();
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
@@ -147,7 +147,7 @@ namespace DPA_Musicsheets.Managers
                                     staffbuider.setTempo(_bpm);
                                     staffbuider.setTimesignature(_beatNote, _beatsPerBar);
                                     staff.tempo = _bpm;
-                                    staff.timeSignature = new Tuple<int, int>(_beatNote,_beatsPerBar);
+                                    staff.timeSignature = new Tuple<int, int>(_beatNote, _beatsPerBar);
 
 
 
@@ -165,9 +165,9 @@ namespace DPA_Musicsheets.Managers
                                         percentageOfBarReached += percentageOfBar;
                                         if (percentageOfBarReached >= 1)
                                         {
-                                            
+
                                             lilypondContent.AppendLine("|");
-                                            
+
                                             percentageOfBar = percentageOfBar - 1;
 
                                             //create new measure
@@ -188,11 +188,11 @@ namespace DPA_Musicsheets.Managers
                                 {
                                     // Append the new note.
                                     lilypondContent.Append(GetNoteName(previousMidiKey, channelMessage.Data1));
-                                   
+
                                     //create new note
                                     noteBuilder.setPitch(channelMessage.Data1);
 
-                                    measureBuilder.addNote(new Models.Note() { pitch = channelMessage.Data1, loudniss = 4 });
+                                    measureBuilder.addNote(new Models.Note() { pitch = channelMessage.Data1, loudness = 4 });
 
 
                                     previousMidiKey = channelMessage.Data1;
@@ -201,7 +201,6 @@ namespace DPA_Musicsheets.Managers
                                 else if (!startedNoteIsClosed)
                                 {
                                     // Finish the previous note with the length.
-                                    double percentageOfBar;
                                     lilypondContent.Append(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
                                     previousNoteAbsoluteTicks = midiEvent.AbsoluteTicks;
                                     lilypondContent.Append(" ");
@@ -221,7 +220,7 @@ namespace DPA_Musicsheets.Managers
                                 }
                                 else
                                 {
-                                   
+
                                     lilypondContent.Append("r");
                                 }
                             }
@@ -425,13 +424,13 @@ namespace DPA_Musicsheets.Managers
             }
 
             int distance = midiKey - previousMidiKey;
-            while(distance < -6)
+            while (distance < -6)
             {
                 name += ",";
                 distance += 8;
             }
 
-            while(distance > 6)
+            while (distance > 6)
             {
                 name += "'";
                 distance -= 8;
@@ -443,7 +442,7 @@ namespace DPA_Musicsheets.Managers
         private static int getNoteOctave(int midiKey)
         {
             int octave = (midiKey / 12) - 1;
-            
+
             return octave;
         }
 
@@ -536,7 +535,7 @@ namespace DPA_Musicsheets.Managers
                     currentToken = currentToken.NextToken;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 message = ex.Message;
             }
@@ -549,22 +548,22 @@ namespace DPA_Musicsheets.Managers
             List<MusicalSymbol> symbols = new List<MusicalSymbol>();
             message = "";
 
-                foreach (Measure m in staff.measures)
+            foreach (Measure m in staff.measures)
+            {
+
+                foreach (Models.Note n in m.notes)
                 {
-
-                    foreach (Models.Note n in m.notes)
-                    {
-                        Clef currentClef = null;
-                        int previousOctave = 4;
-                        int noteLength = 4;
-                        int alter = 3;
-                        var note = new PSAMControlLibrary.Note(GetNoteName(n.pitch, n.pitch).ToUpper(), alter, getNoteOctave(n.pitch), (MusicalSymbolDuration)n.loudniss, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
+                    Clef currentClef = null;
+                    int previousOctave = 4;
+                    int noteLength = 4;
+                    int alter = 3;
+                    var note = new PSAMControlLibrary.Note(GetNoteName(n.pitch, n.pitch).ToUpper(), alter, getNoteOctave(n.pitch), (MusicalSymbolDuration)n.loudness, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
 
 
-                        symbols.Add(note);
-                    }
-                    symbols.Add(new Barline());
+                    symbols.Add(note);
                 }
+                symbols.Add(new Barline());
+            }
 
             return symbols;
         }
@@ -707,9 +706,10 @@ namespace DPA_Musicsheets.Managers
             };
 
             process.Start();
-            while (!process.HasExited) { /* Wait for exit */
-                }
-                if (sourceFolder != targetFolder || sourceFileName != targetFileName)
+            while (!process.HasExited)
+            { /* Wait for exit */
+            }
+            if (sourceFolder != targetFolder || sourceFileName != targetFileName)
             {
                 File.Move(sourceFolder + "\\" + sourceFileName + ".pdf", targetFolder + "\\" + targetFileName + ".pdf");
                 File.Delete(tmpFileName);

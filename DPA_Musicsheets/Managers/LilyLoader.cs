@@ -15,10 +15,12 @@ namespace DPA_Musicsheets.Managers
             return content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
         }
 
+        /**
         internal LinkedList<LilypondToken> fromString(string content)
         {
             content = CleanUpLilySource(content);
             return FileHandler.GetTokensFromLilypond(content);
         }
+        **/
     }
 }
