@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    class Staff
+    public class Staff
     {
-        public Bar[] bars;
+        public List<Measure> measures;
+        public int tempo;
+        public Tuple<int, int> timeSignature;
+
     }
 }

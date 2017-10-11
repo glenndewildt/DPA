@@ -18,6 +18,7 @@ namespace DPA_Musicsheets.ViewModels
 {
     public class StaffsViewModel : ViewModelBase
     {
+
         public ObservableCollection<MusicalSymbol> Staffs { get; set; }
         private FileHandler _fileHandler;
 

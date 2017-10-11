@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    class Measure
+    public class Measure
     {
-        public Note[] notes;
-        public Tuple<int, int> timeSignature;
+        public List<Note> notes;
     }
 }
