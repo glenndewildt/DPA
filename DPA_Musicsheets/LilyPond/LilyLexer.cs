@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
-using DPA_Musicsheets.LilyPond;
+using DPA_Musicsheets.Lilypond;
 
-namespace DPA_Musicsheets.LilyPond
+namespace DPA_Musicsheets.Lilypond
 {
-    class Tokenizer
+    public class LilyLexer
     {
         public class TokenMatcher
         {
@@ -93,7 +93,7 @@ namespace DPA_Musicsheets.LilyPond
             "UNKOWN-TOKEN-REGEX-DOESN'T-MATTER-AND-SHOULDN'T-MATCH"
         );
 
-        public Tokenizer()
+        public LilyLexer()
         {
             // add to internal dictionary to make it loopable
             tokenMatchers.Add("TOKEN_NOTE", TOKEN_NOTE);

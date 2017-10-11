@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DPA_Musicsheets.LilyPond;
-using static DPA_Musicsheets.LilyPond.Tokenizer;
+using static DPA_Musicsheets.Lilypond.LilyLexer;
 using System.Text.RegularExpressions;
+using DPA_Musicsheets.Lilypond;
 
-namespace DPA_Musicsheets.LilyPond
+namespace DPA_Musicsheets.Lilypond
 {
-    class t_LilypondToken
+    public class t_LilypondToken
     {
         string Token { get; }
         TokenMatcher Type { get; }
