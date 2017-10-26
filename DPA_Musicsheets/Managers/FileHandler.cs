@@ -77,6 +77,10 @@ namespace DPA_Musicsheets.Managers
         {
             LilypondText = content;
             content = content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
+
+            Lilypond.LilyLexer lily = new Lilypond.LilyLexer();
+            List<Lilypond.t_LilypondToken> tokensz = lily.TokenizeLilySource(content);
+
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
 
             WPFStaffs.Clear();
