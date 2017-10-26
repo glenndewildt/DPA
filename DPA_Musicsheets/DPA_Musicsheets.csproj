@@ -103,6 +103,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="KeyboardChainOfResponsibility\Handler.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\KeyNames.cs" />
     <Compile Include="Lilypond\LilyTokenizer.cs" />
     <Compile Include="Lilypond\LilyParser.cs" />
     <Compile Include="Lilypond\LilyToken.cs" />
