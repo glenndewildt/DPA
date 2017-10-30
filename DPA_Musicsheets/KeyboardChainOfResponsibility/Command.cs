@@ -7,9 +7,9 @@ using KeyboardChainOfResponsibility.KeyNames;
 
 namespace KeyboardChainOfResponsibility
 {
-    public abstract class Handler
+    public abstract class Command
     {
         public abstract void Handle(Modifiers modifier, Characters character, Numbers number);
-        public abstract void NextHandler(Handler next);
+        public abstract void NextHandler(Command next);
     }
 }
