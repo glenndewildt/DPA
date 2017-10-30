@@ -8,9 +8,9 @@ using KeyboardChainOfResponsibility.KeyNames;
 
 namespace DPA_Musicsheets.KeyboardChainOfResponsibility
 {
-    class SaveAsPDFCommand : Command
+    class SaveAsPDFCommand : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
@@ -30,7 +30,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }

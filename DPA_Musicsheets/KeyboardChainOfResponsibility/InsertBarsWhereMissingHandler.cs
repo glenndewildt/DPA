@@ -1,22 +1,22 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DPA_Musicsheets;
+using KeyboardChainOfResponsibility;
 using KeyboardChainOfResponsibility.KeyNames;
 
-namespace KeyboardChainOfResponsibility
+namespace DPA_Musicsheets.KeyboardChainOfResponsibility
 {
-    class SaveAsLilyCommand : Command
+    class InsertBarsWhereMissingCommand : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
-            if (modifier == Modifiers.CTRL && character == Characters.S)
+            if (modifier == Modifiers.ALT && character == Characters.B)
             {
-                // ...met CTRL + S een bestand kunnen opslaan (als lilypondbestand)
+                // ...met ALT + B de benodigde bar lines invoegen waar deze ontbreken (in de selectie)
 
             }
             else
@@ -25,7 +25,7 @@ namespace KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }

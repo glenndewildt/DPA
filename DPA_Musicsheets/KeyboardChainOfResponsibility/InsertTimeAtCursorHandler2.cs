@@ -8,15 +8,15 @@ using KeyboardChainOfResponsibility.KeyNames;
 
 namespace DPA_Musicsheets.KeyboardChainOfResponsibility
 {
-    class InsertSpeedAtCursorCommand : Command
+    class InsertTimeAtCursorCommand2 : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
-            if (modifier == Modifiers.ALT && character == Characters.S)
+            if (modifier == Modifiers.ALT && character == Characters.T && number == Numbers.FOUR)
             {
-                // ...met ALT+S een tempo (speed) 4=120 invoegen op de huidige plek
+                // ...met ALT + T + 4 ook een time 4/4 invoegen op de huidige plek
 
             }
             else
@@ -25,7 +25,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }

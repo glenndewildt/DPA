@@ -8,15 +8,15 @@ using KeyboardChainOfResponsibility.KeyNames;
 
 namespace DPA_Musicsheets.KeyboardChainOfResponsibility
 {
-    class InsertTrebleAtCursorCommand : Command
+    class InsertTimeAtCursorCommand3 : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
-            if (modifier == Modifiers.ALT && character == Characters.C)
+            if (modifier == Modifiers.ALT && character == Characters.T && number == Numbers.THREE)
             {
-                // met ALT + C een clef treble invoegen op de huidige plek
+                //  ...met ALT + T + 3 een time 3/4 invoegen op de huidige plek
 
             }
             else
@@ -25,7 +25,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }

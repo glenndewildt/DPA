@@ -1,22 +1,22 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using KeyboardChainOfResponsibility;
+using DPA_Musicsheets;
 using KeyboardChainOfResponsibility.KeyNames;
 
-namespace DPA_Musicsheets.KeyboardChainOfResponsibility
+namespace KeyboardChainOfResponsibility
 {
-    class InsertTimeAtCursorCommand : Command
+    class SaveAsLilyCommand : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
-            if (modifier == Modifiers.ALT && character == Characters.T)
+            if (modifier == Modifiers.CTRL && character == Characters.S)
             {
-                //  ...met ALT + T een time 4/4 invoegen op de huidige plek
+                // ...met CTRL + S een bestand kunnen opslaan (als lilypondbestand)
 
             }
             else
@@ -25,7 +25,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }

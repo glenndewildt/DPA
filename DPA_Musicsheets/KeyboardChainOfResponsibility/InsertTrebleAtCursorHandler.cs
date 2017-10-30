@@ -8,15 +8,15 @@ using KeyboardChainOfResponsibility.KeyNames;
 
 namespace DPA_Musicsheets.KeyboardChainOfResponsibility
 {
-    class InsertBarsWhereMissingCommand : Command
+    class InsertTrebleAtCursorCommand : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
-            if (modifier == Modifiers.ALT && character == Characters.B)
+            if (modifier == Modifiers.ALT && character == Characters.C)
             {
-                // ...met ALT + B de benodigde bar lines invoegen waar deze ontbreken (in de selectie)
+                // met ALT + C een clef treble invoegen op de huidige plek
 
             }
             else
@@ -25,7 +25,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }

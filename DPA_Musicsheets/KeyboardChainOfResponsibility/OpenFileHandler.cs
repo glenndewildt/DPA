@@ -8,15 +8,15 @@ using KeyboardChainOfResponsibility.KeyNames;
 
 namespace DPA_Musicsheets.KeyboardChainOfResponsibility
 {
-    class InsertTimeAtCursorCommand4 : Command
+    class OpenFileCommand : Handler
     {
-        private Command _nextHandler;
+        private Handler _nextHandler;
 
         public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
-            if (modifier == Modifiers.ALT && character == Characters.T && number == Numbers.SIX)
+            if (modifier == Modifiers.CTRL && character == Characters.O)
             {
-                //  ...met ALT + T + 6 een time 6/8 invoegen op de huidige plek
+                // met CTRL + O een bestand openen
 
             }
             else
@@ -25,7 +25,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
             }
         }
 
-        public override void NextHandler(Command next)
+        public override void NextHandler(Handler next)
         {
             _nextHandler = next;
         }
