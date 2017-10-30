@@ -12,7 +12,7 @@ namespace DPA_Musicsheets.KeyboardChainOfResponsibility
     {
         private Command _nextHandler;
 
-public override void Handle(Modifiers modifier, Characters character, Numbers number)
+        public override void Handle(Modifiers modifier, Characters character, Numbers number)
         {
             if (modifier == Modifiers.CTRL && character == Characters.O)
             {

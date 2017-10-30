@@ -103,18 +103,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertBarsWhereMissing.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertSpeedAtCursor.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertTimeAtCursor.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertTimeAtCursor2.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertTimeAtCursor3.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertTimeAtCursor4.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteInsertTrebleAtCursor.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteOpenFile.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteSaveAsPDF.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\Handler.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\Command.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertBarsWhereMissingCommand.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertSpeedAtCursorCommand.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertTimeAtCursorCommand.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertTimeAtCursorCommand2.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertTimeAtCursorCommand3.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertTimeAtCursorCommand4.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\InsertTrebleAtCursorCommand.cs" />
     <Compile Include="KeyboardChainOfResponsibility\KeyNames.cs" />
-    <Compile Include="KeyboardChainOfResponsibility\ConcreteSaveAsLily.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\OpenFileCommand.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\SaveAsLilyCommand.cs" />
+    <Compile Include="KeyboardChainOfResponsibility\SaveAsPDFCommand.cs" />
     <Compile Include="Lilypond\LilyTokenizer.cs" />
     <Compile Include="Lilypond\LilyParser.cs" />
     <Compile Include="Lilypond\LilyToken.cs" />
@@ -231,7 +231,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="KeyboardChainOfResponsibility\commands\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
