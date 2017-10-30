@@ -9,6 +9,7 @@ namespace KeyboardChainOfResponsibility
 {
     public abstract class Handler
     {
-        public abstract void Handle(KeyNames.Modifiers modifier, KeyNames.Characters character, KeyNames.Numbers number);
+        public abstract void Handle(Modifiers modifier, Characters character, Numbers number);
+        public abstract void NextHandler(Handler next);
     }
 }
