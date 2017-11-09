@@ -80,7 +80,7 @@ namespace DPA_Musicsheets.LilyPond
 
         private LilypondTokenKind GetTokenKind(string token)
         {
-            
+            return LilypondTokenKind.Bar;
         }
     }
 }
