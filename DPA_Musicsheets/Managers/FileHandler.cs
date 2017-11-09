@@ -1,7 +1,7 @@
 ﻿
 using DPA_Musicsheets.Builders;
 using DPA_Musicsheets.Models;
-using DPA_Musicsheets.Parsers;
+using DPA_Musicsheets.Midi;
 using PSAMControlLibrary;
 using PSAMWPFControlLibrary;
 using Sanford.Multimedia.Midi;
@@ -37,47 +37,6 @@ namespace DPA_Musicsheets.Managers
         public event EventHandler<MidiSequenceEventArgs> MidiSequenceChanged;
 
         private Staff staff;
-
-        private class MidiStaffBuildAdapter
-        {
-            // builds a staff from midi interface
-            private Staff _staffProduct;
-
-            private int beatNote = 0;
-            private int beatsPerBar = 0;
-
-            public MidiStaffBuildAdapter()
-            {
-                _staffProduct = new Staff();
-            }
-
-            public void SetBeatNote(int beatNote)
-            {
-                this.beatNote = beatNote;
-            }
-
-            public void SetBeatsPerBar(int beatsPerBar)
-            {
-                this.beatsPerBar = beatsPerBar;
-            }
-
-            public void SetBpm(int bpm)
-            {
-                _staffProduct.bpm = bpm;
-            }
-
-            public Staff Build()
-            {
-                if (beatNote == 0 && beatsPerBar == 0)
-                {
-                    throw new Exception("Both methods `SetBeatNote` and `SetBeatsPerBar` are required");
-                }
-
-                _staffProduct.timeSignature = new Tuple<int, int>(beatNote, beatsPerBar);
-
-                return _staffProduct;
-            }
-        }
 
         private MidiStaffBuildAdapter staffBuilder = new MidiStaffBuildAdapter();
 

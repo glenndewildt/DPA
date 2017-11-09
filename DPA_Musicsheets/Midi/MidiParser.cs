@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DPA_Musicsheets.Parsers
+namespace DPA_Musicsheets.Midi
 {
     public class MidiParser
     {
