@@ -36,9 +36,50 @@ namespace DPA_Musicsheets.Managers
         public event EventHandler<WPFStaffsEventArgs> WPFStaffsChanged;
         public event EventHandler<MidiSequenceEventArgs> MidiSequenceChanged;
 
-        private int _beatNote = 4;    // De waarde van een beatnote.
-        private int _bpm = 120;       // Aantal beatnotes per minute.
-        private int _beatsPerBar;     // Aantal beatnotes per maat.
+        private Staff staff;
+
+        private class MidiStaffBuildAdapter
+        {
+            // builds a staff from midi interface
+            private Staff _staffProduct;
+
+            private int beatNote = 0;
+            private int beatsPerBar = 0;
+
+            public MidiStaffBuildAdapter()
+            {
+                _staffProduct = new Staff();
+            }
+
+            public void SetBeatNote(int beatNote)
+            {
+                this.beatNote = beatNote;
+            }
+
+            public void SetBeatsPerBar(int beatsPerBar)
+            {
+                this.beatsPerBar = beatsPerBar;
+            }
+
+            public void SetBpm(int bpm)
+            {
+                _staffProduct.bpm = bpm;
+            }
+
+            public Staff Build()
+            {
+                if (beatNote == 0 && beatsPerBar == 0)
+                {
+                    throw new Exception("Both methods `SetBeatNote` and `SetBeatsPerBar` are required");
+                }
+
+                _staffProduct.timeSignature = new Tuple<int, int>(beatNote, beatsPerBar);
+
+                return _staffProduct;
+            }
+        }
+
+        private MidiStaffBuildAdapter staffBuilder = new MidiStaffBuildAdapter();
 
         public void OpenFile(string fileName)
         {
@@ -81,48 +122,23 @@ namespace DPA_Musicsheets.Managers
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
 
-
         // Midi refactoring
-        // next step, refactor out the variables that modify FileHandler-scoped member fields
-        // this state should probably reside in Staff.cs in the end
-        private class MidiFileHandlerAdapter
-        {
-            private FileHandler handler;
-
-            public MidiFileHandlerAdapter(FileHandler handler)
-            {
-                this.handler = handler;
-            }
-
-            public void SetBeatNote(int beatnote)
-            {
-                handler._beatNote = beatnote;
-            }
-
-            public void SetBeatsPerBar(int beatsPerBar)
-            {
-                handler._beatsPerBar = beatsPerBar;
-            }
-
-            public void SetBpm(int bpm)
-            {
-                handler._bpm = bpm;
-            }
-        }
-
         public void LoadMidi(Sequence sequence)
         {
             MidiLilyBuilder lilyPondContent = new MidiLilyBuilder();
             lilyPondContent.AddDefaultConfiguration();
 
             MidiParser midiParser = new MidiParser();
-            MidiFileHandlerAdapter fhAdapter = new MidiFileHandlerAdapter(this);
+            MidiStaffBuildAdapter midiStaffBuilder = new MidiStaffBuildAdapter();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
             int previousNoteAbsoluteTicks = 0;
             double percentageOfBarReached = 0;
             bool startedNoteIsClosed = true;
+
+            Tuple<int, int> timeSignature = null;
+            int bpm;
 
             for (int i = 0; i < sequence.Count(); i++)
             {
@@ -139,13 +155,13 @@ namespace DPA_Musicsheets.Managers
                             {
                                 case MetaType.TimeSignature:
                                     // parse the message
-                                    Tuple<int, int> timeSignature = midiParser.TimeSignature(metaMessage);
+                                    timeSignature = midiParser.TimeSignature(metaMessage);
 
                                     int beatNote = timeSignature.Item1;
                                     int beatsPerBar = timeSignature.Item2;
 
-                                    fhAdapter.SetBeatNote(beatNote);
-                                    fhAdapter.SetBeatsPerBar(beatsPerBar);
+                                    midiStaffBuilder.SetBeatNote(beatNote);
+                                    midiStaffBuilder.SetBeatsPerBar(beatsPerBar);
 
                                     // build lily
                                     lilyPondContent.AddTime(beatNote, beatsPerBar);
@@ -154,8 +170,8 @@ namespace DPA_Musicsheets.Managers
                                     // parse the message
                                     int tempo = midiParser.Tempo(metaMessage);
 
-                                    int bpm = 60000000 / tempo;
-                                    fhAdapter.SetBpm(bpm);
+                                    bpm = 60000000 / tempo;
+                                    midiStaffBuilder.SetBpm(bpm);
 
                                     // build lily
                                     lilyPondContent.AddTempo(bpm);
@@ -172,7 +188,7 @@ namespace DPA_Musicsheets.Managers
                                         int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
 
                                         // build lily
-                                        lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+                                        lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, timeSignature.Item1, timeSignature.Item2, out percentageOfBar));
                                         lilyPondContent.AddNoteSeparator();
 
                                         // stateful message parse
@@ -215,7 +231,7 @@ namespace DPA_Musicsheets.Managers
                                     int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
                                     
                                     // build lily
-                                    lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+                                    lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, timeSignature.Item1, timeSignature.Item2, out percentageOfBar));
 
                                     // update local state
                                     previousNoteAbsoluteTicks = currentAbsoluteTicks;
@@ -245,6 +261,8 @@ namespace DPA_Musicsheets.Managers
             }
 
             lilyPondContent.CloseScope();
+
+            this.staff = midiStaffBuilder.Build();
 
             LoadLilypond(lilyPondContent.Build());
         }
@@ -533,9 +551,37 @@ namespace DPA_Musicsheets.Managers
             sequence.Save(fileName);
         }
 
+        private class WPFFilehandlerAdapter
+        {
+            private FileHandler handler;
+
+            public WPFFilehandlerAdapter(FileHandler handler)
+            {
+                this.handler = handler;
+            }
+
+            public int GetBpm()
+            {
+                return handler.staff.bpm;
+            }
+
+            public int GetBeatNote()
+            {
+                return handler.staff.timeSignature.Item1;
+            }
+
+            public int GetBeatsPerMeasure()
+            {
+                return handler.staff.timeSignature.Item2;
+            }
+        }
+
         private Sequence GetSequenceFromWPFStaffs()
         {
             List<string> notesOrderWithCrosses = new List<string>() { "c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "ais", "b" };
+
+            WPFFilehandlerAdapter fhAdapter = new WPFFilehandlerAdapter(this);
+
             int absoluteTicks = 0;
 
             Sequence sequence = new Sequence();
@@ -544,7 +590,7 @@ namespace DPA_Musicsheets.Managers
             sequence.Add(metaTrack);
 
             // Calculate tempo
-            int speed = (60000000 / _bpm);
+            int speed = (60000000 / fhAdapter.GetBpm());
             byte[] tempo = new byte[3];
             tempo[0] = (byte)((speed >> 16) & 0xff);
             tempo[1] = (byte)((speed >> 8) & 0xff);
@@ -565,8 +611,8 @@ namespace DPA_Musicsheets.Managers
                         double absoluteLength = 1.0 / (double)note.Duration;
                         absoluteLength += (absoluteLength / 2.0) * note.NumberOfDots;
 
-                        double relationToQuartNote = _beatNote / 4.0;
-                        double percentageOfBeatNote = (1.0 / _beatNote) / absoluteLength;
+                        double relationToQuartNote = fhAdapter.GetBeatNote() / 4.0;
+                        double percentageOfBeatNote = (1.0 / fhAdapter.GetBeatNote()) / absoluteLength;
                         double deltaTicks = (sequence.Division / relationToQuartNote) / percentageOfBeatNote;
 
                         // Calculate height
@@ -580,8 +626,8 @@ namespace DPA_Musicsheets.Managers
                         break;
                     case MusicalSymbolType.TimeSignature:
                         byte[] timeSignature = new byte[4];
-                        timeSignature[0] = (byte)_beatsPerBar;
-                        timeSignature[1] = (byte)(Math.Log(_beatNote) / Math.Log(2));
+                        timeSignature[0] = (byte)fhAdapter.GetBeatsPerMeasure();
+                        timeSignature[1] = (byte)(Math.Log(fhAdapter.GetBeatNote()) / Math.Log(2));
                         metaTrack.Insert(absoluteTicks, new MetaMessage(MetaType.TimeSignature, timeSignature));
                         break;
                     default:

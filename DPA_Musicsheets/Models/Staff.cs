@@ -9,5 +9,13 @@ namespace DPA_Musicsheets.Models
     class Staff
     { 
         public LinkedList<Measure> measures;
+
+        // beats per minute
+        public int bpm;
+
+        // Beats
+        // -----
+        // BeatsPerMeasure
+        public Tuple<int, int> timeSignature;
     }
 }
