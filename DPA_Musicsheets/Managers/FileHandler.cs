@@ -38,8 +38,6 @@ namespace DPA_Musicsheets.Managers
 
         private Staff staff;
 
-        private MidiStaffBuildAdapter staffBuilder = new MidiStaffBuildAdapter();
-
         public void OpenFile(string fileName)
         {
             if (Path.GetExtension(fileName).EndsWith(".mid"))
