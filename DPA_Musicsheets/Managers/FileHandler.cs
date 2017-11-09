@@ -18,6 +18,8 @@ namespace DPA_Musicsheets.Managers
 {
     public class FileHandler
     {
+        private const int MINUTE_IN_MICROSECONDS = 60000000;
+
         private string _lilypondText;
         public string LilypondText
         {
@@ -127,7 +129,7 @@ namespace DPA_Musicsheets.Managers
                                     // parse the message
                                     int tempo = midiParser.Tempo(metaMessage);
 
-                                    bpm = 60000000 / tempo;
+                                    bpm = MINUTE_IN_MICROSECONDS / tempo;
                                     midiStaffBuilder.SetBpm(bpm);
 
                                     // build lily
@@ -547,7 +549,7 @@ namespace DPA_Musicsheets.Managers
             sequence.Add(metaTrack);
 
             // Calculate tempo
-            int speed = (60000000 / fhAdapter.GetBpm());
+            int speed = MINUTE_IN_MICROSECONDS / fhAdapter.GetBpm();
             byte[] tempo = new byte[3];
             tempo[0] = (byte)((speed >> 16) & 0xff);
             tempo[1] = (byte)((speed >> 8) & 0xff);
