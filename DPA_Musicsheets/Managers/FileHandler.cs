@@ -1,4 +1,5 @@
 ﻿
+using DPA_Musicsheets.Builders;
 using DPA_Musicsheets.Models;
 using PSAMControlLibrary;
 using PSAMWPFControlLibrary;
@@ -82,74 +83,29 @@ namespace DPA_Musicsheets.Managers
 
 
         // Midi refactoring
-        private class MidiLilyBuilder {
-            private StringBuilder _lilyProduct;
-
-            public MidiLilyBuilder()
+        private class MidiParser {
+            public Tuple<int, int> TimeSignature(MetaMessage message)
             {
-                _lilyProduct = new StringBuilder();
+                byte[] timeSignatureBytes = message.GetBytes();
+
+                int _beatNote = timeSignatureBytes[0];
+                int _beatsPerBar = (int)(1 / Math.Pow(timeSignatureBytes[1], -2));
+
+                return Tuple.Create<int, int>(_beatNote, _beatsPerBar);
             }
 
-            public void AddDefaultConfiguration()
+            public int Tempo(MetaMessage message)
             {
-                _lilyProduct.AppendLine("\\relative c' ");
-                this.OpenScope();
-                _lilyProduct.AppendLine("\\clef treble");
+                byte[] tempoBytes = message.GetBytes();
+                int tempo = (tempoBytes[0] & 0xff) << 16 | (tempoBytes[1] & 0xff) << 8 | (tempoBytes[2] & 0xff);
+
+                return tempo;
             }
 
-            public void AddTime(int beatNote, int beatsPerBar)
+            public int Loudness(ChannelMessage message)
             {
-                _lilyProduct.AppendLine($"\\time {beatNote}/{beatsPerBar}");
-            }
-
-            public void AddTempo(int bpm)
-            {
-                _lilyProduct.AppendLine($"\\tempo 4={bpm}");
-            }
-
-            public void AddNoteLength(string noteLength)
-            {
-                _lilyProduct.Append(noteLength);
-            }
-
-            public void AddBar()
-            {
-                _lilyProduct.AppendLine("|");
-            }
-
-            public void AddNote(string note)
-            {
-                _lilyProduct.Append(note);
-            }
-
-            public void AddNoteSeparator()
-            {
-                _lilyProduct.Append(" ");
-            }
-
-            public void OpenScope()
-            {
-                _lilyProduct.Append("{");
-            }
-
-            public void CloseScope()
-            {
-                _lilyProduct.Append("}");
-            }
-
-            /// <summary>
-            /// Appends anything that does not fit in with the
-            /// rest of the methods, does not add new line
-            /// </summary>
-            /// <param name="wildcard">Piece of custom content that will be added to the lily source</param>
-            public void AddCustom(string wildcard)
-            {
-                _lilyProduct.Append("r");
-            }
-
-            public string Build ()
-            {
-                return _lilyProduct.ToString();
+                // in midi, ChannelMessage.Data2 is defined as the 'loudness'
+                return message.Data2;
             }
         }
 
@@ -157,6 +113,8 @@ namespace DPA_Musicsheets.Managers
         {
             MidiLilyBuilder lilyPondContent = new MidiLilyBuilder();
             lilyPondContent.AddDefaultConfiguration();
+
+            MidiParser midiParser = new MidiParser();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
@@ -178,15 +136,18 @@ namespace DPA_Musicsheets.Managers
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.TimeSignature:
-                                    byte[] timeSignatureBytes = metaMessage.GetBytes();
-                                    _beatNote = timeSignatureBytes[0];
-                                    _beatsPerBar = (int)(1 / Math.Pow(timeSignatureBytes[1], -2));
+                                    Tuple<int, int> timeSignature = midiParser.TimeSignature(metaMessage);
+
+                                    _beatNote = timeSignature.Item1;
+                                    _beatsPerBar = timeSignature.Item2;
+
                                     lilyPondContent.AddTime(_beatNote, _beatsPerBar);
                                     break;
                                 case MetaType.Tempo:
-                                    byte[] tempoBytes = metaMessage.GetBytes();
-                                    int tempo = (tempoBytes[0] & 0xff) << 16 | (tempoBytes[1] & 0xff) << 8 | (tempoBytes[2] & 0xff);
+                                    int tempo = midiParser.Tempo(metaMessage);
+
                                     _bpm = 60000000 / tempo;
+
                                     lilyPondContent.AddTempo(_bpm);
                                     break;
                                 case MetaType.EndOfTrack:
@@ -212,7 +173,8 @@ namespace DPA_Musicsheets.Managers
                             var channelMessage = midiEvent.MidiMessage as ChannelMessage;
                             if (channelMessage.Command == ChannelCommand.NoteOn)
                             {
-                                if(channelMessage.Data2 > 0) // Data2 = loudness
+                                int loudness = midiParser.Loudness(channelMessage);
+                                if(loudness > 0)
                                 {
                                     // Append the new note.
                                     lilyPondContent.AddNote(GetNoteName(previousMidiKey, channelMessage.Data1));
