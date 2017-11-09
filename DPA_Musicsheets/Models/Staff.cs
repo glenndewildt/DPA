@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DPA_Musicsheets.Models
 {
     class Staff
-    {
+    { 
         public LinkedList<Measure> measures;
     }
 }
