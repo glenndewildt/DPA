@@ -55,7 +55,7 @@ namespace DPA_Musicsheets.Managers
                 {
                     sb.AppendLine(line);
                 }
-                
+
                 LilypondText = sb.ToString();
 
                 LoadLilypond(sb.ToString());
@@ -80,11 +80,83 @@ namespace DPA_Musicsheets.Managers
             MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
         }
 
+
+        // Midi refactoring
+        private class MidiLilyBuilder {
+            private StringBuilder _lilyProduct;
+
+            public MidiLilyBuilder()
+            {
+                _lilyProduct = new StringBuilder();
+            }
+
+            public void AddDefaultConfiguration()
+            {
+                _lilyProduct.AppendLine("\\relative c' ");
+                this.OpenScope();
+                _lilyProduct.AppendLine("\\clef treble");
+            }
+
+            public void AddTime(int beatNote, int beatsPerBar)
+            {
+                _lilyProduct.AppendLine($"\\time {beatNote}/{beatsPerBar}");
+            }
+
+            public void AddTempo(int bpm)
+            {
+                _lilyProduct.AppendLine($"\\tempo 4={bpm}");
+            }
+
+            public void AddNoteLength(string noteLength)
+            {
+                _lilyProduct.Append(noteLength);
+            }
+
+            public void AddBar()
+            {
+                _lilyProduct.AppendLine("|");
+            }
+
+            public void AddNote(string note)
+            {
+                _lilyProduct.Append(note);
+            }
+
+            public void AddNoteSeparator()
+            {
+                _lilyProduct.Append(" ");
+            }
+
+            public void OpenScope()
+            {
+                _lilyProduct.Append("{");
+            }
+
+            public void CloseScope()
+            {
+                _lilyProduct.Append("}");
+            }
+
+            /// <summary>
+            /// Appends anything that does not fit in with the
+            /// rest of the methods, does not add new line
+            /// </summary>
+            /// <param name="wildcard">Piece of custom content that will be added to the lily source</param>
+            public void AddCustom(string wildcard)
+            {
+                _lilyProduct.Append("r");
+            }
+
+            public string Build ()
+            {
+                return _lilyProduct.ToString();
+            }
+        }
+
         public void LoadMidi(Sequence sequence)
         {
-            StringBuilder lilypondContent = new StringBuilder();
-            lilypondContent.AppendLine("\\relative c' {");
-            lilypondContent.AppendLine("\\clef treble");
+            MidiLilyBuilder lilyPondContent = new MidiLilyBuilder();
+            lilyPondContent.AddDefaultConfiguration();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
@@ -109,26 +181,26 @@ namespace DPA_Musicsheets.Managers
                                     byte[] timeSignatureBytes = metaMessage.GetBytes();
                                     _beatNote = timeSignatureBytes[0];
                                     _beatsPerBar = (int)(1 / Math.Pow(timeSignatureBytes[1], -2));
-                                    lilypondContent.AppendLine($"\\time {_beatNote}/{_beatsPerBar}");
+                                    lilyPondContent.AddTime(_beatNote, _beatsPerBar);
                                     break;
                                 case MetaType.Tempo:
                                     byte[] tempoBytes = metaMessage.GetBytes();
                                     int tempo = (tempoBytes[0] & 0xff) << 16 | (tempoBytes[1] & 0xff) << 8 | (tempoBytes[2] & 0xff);
                                     _bpm = 60000000 / tempo;
-                                    lilypondContent.AppendLine($"\\tempo 4={_bpm}");
+                                    lilyPondContent.AddTempo(_bpm);
                                     break;
                                 case MetaType.EndOfTrack:
                                     if (previousNoteAbsoluteTicks > 0)
                                     {
                                         // Finish the last notelength.
                                         double percentageOfBar;
-                                        lilypondContent.Append(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
-                                        lilypondContent.Append(" ");
+                                        lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+                                        lilyPondContent.AddNoteSeparator();
 
                                         percentageOfBarReached += percentageOfBar;
                                         if (percentageOfBarReached >= 1)
                                         {
-                                            lilypondContent.AppendLine("|");
+                                            lilyPondContent.AddBar();
                                             percentageOfBar = percentageOfBar - 1;
                                         }
                                     }
@@ -143,7 +215,7 @@ namespace DPA_Musicsheets.Managers
                                 if(channelMessage.Data2 > 0) // Data2 = loudness
                                 {
                                     // Append the new note.
-                                    lilypondContent.Append(GetNoteName(previousMidiKey, channelMessage.Data1));
+                                    lilyPondContent.AddNote(GetNoteName(previousMidiKey, channelMessage.Data1));
                                     
                                     previousMidiKey = channelMessage.Data1;
                                     startedNoteIsClosed = false;
@@ -152,21 +224,21 @@ namespace DPA_Musicsheets.Managers
                                 {
                                     // Finish the previous note with the length.
                                     double percentageOfBar;
-                                    lilypondContent.Append(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+                                    lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
                                     previousNoteAbsoluteTicks = midiEvent.AbsoluteTicks;
-                                    lilypondContent.Append(" ");
+                                    lilyPondContent.AddNoteSeparator();
 
                                     percentageOfBarReached += percentageOfBar;
                                     if (percentageOfBarReached >= 1)
                                     {
-                                        lilypondContent.AppendLine("|");
+                                        lilyPondContent.AddBar();
                                         percentageOfBarReached -= 1;
                                     }
                                     startedNoteIsClosed = true;
                                 }
                                 else
                                 {
-                                    lilypondContent.Append("r");
+                                    lilyPondContent.AddCustom("r");
                                 }
                             }
                             break;
@@ -174,9 +246,9 @@ namespace DPA_Musicsheets.Managers
                 }
             }
 
-            lilypondContent.Append("}");
+            lilyPondContent.CloseScope();
 
-            LoadLilypond(lilypondContent.ToString());
+            LoadLilypond(lilyPondContent.Build());
         }
 
         private string GetNoteLength(int absoluteTicks, int nextNoteAbsoluteTicks, int division, int beatNote, int beatsPerBar, out double percentageOfBar)
@@ -361,7 +433,7 @@ namespace DPA_Musicsheets.Managers
 
                             previousNote = currentToken.Value[0];
 
-                            var note = new Note(currentToken.Value[0].ToString().ToUpper(), alter, previousOctave, (MusicalSymbolDuration)noteLength, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
+                            var note = new PSAMControlLibrary.Note(currentToken.Value[0].ToString().ToUpper(), alter, previousOctave, (MusicalSymbolDuration)noteLength, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
                             note.NumberOfDots += currentToken.Value.Count(c => c.Equals('.'));
 
                             symbols.Add(note);
@@ -485,7 +557,7 @@ namespace DPA_Musicsheets.Managers
                 switch (musicalSymbol.Type)
                 {
                     case MusicalSymbolType.Note:
-                        Note note = musicalSymbol as Note;
+                        PSAMControlLibrary.Note note = musicalSymbol as PSAMControlLibrary.Note;
 
                         // Calculate duration
                         double absoluteLength = 1.0 / (double)note.Duration;
