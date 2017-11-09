@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Midi
 {
-    class MidiTHING
+    class MidiGodClass
     {
         private FileHandler fileHandler;
 
-        public MidiTHING(FileHandler fileHandler)
+        public MidiGodClass(FileHandler fileHandler)
         {
             this.fileHandler = fileHandler;
         }

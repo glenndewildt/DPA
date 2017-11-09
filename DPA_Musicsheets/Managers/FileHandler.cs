@@ -38,11 +38,11 @@ namespace DPA_Musicsheets.Managers
 
         public Staff staff;
 
-        private MidiTHING midiINTERMEDIATEREFACTORThing;
+        private MidiGodClass midiINTERMEDIATEREFACTORThing;
 
         public FileHandler()
         {
-            midiINTERMEDIATEREFACTORThing = new MidiTHING(this);
+            midiINTERMEDIATEREFACTORThing = new MidiGodClass(this);
         }
 
         public void OpenFile(string fileName)
