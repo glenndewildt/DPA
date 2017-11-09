@@ -17,8 +17,7 @@ namespace DPA_Musicsheets.Builders
 
         public void AddDefaultConfiguration()
         {
-            _lilyProduct.AppendLine("\\relative c' ");
-            this.OpenScope();
+            _lilyProduct.AppendLine("\\relative c' {");
             _lilyProduct.AppendLine("\\clef treble");
         }
 
