@@ -154,9 +154,10 @@ namespace DPA_Musicsheets.Managers
                                 if(loudness > 0)
                                 {
                                     // Append the new note.
-                                    lilyPondContent.AddNote(GetNoteName(previousMidiKey, channelMessage.Data1));
+                                    int currentMidiKey = midiParser.Key(channelMessage);
+                                    lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
                                     
-                                    previousMidiKey = channelMessage.Data1;
+                                    previousMidiKey = currentMidiKey;
                                     startedNoteIsClosed = false;
                                 }
                                 else if (!startedNoteIsClosed)

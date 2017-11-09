@@ -40,5 +40,10 @@ namespace DPA_Musicsheets.Parsers
         {
             return message.AbsoluteTicks;
         }
+
+        public int Key(ChannelMessage message)
+        {
+            return message.Data1;
+        }
     }
 }
