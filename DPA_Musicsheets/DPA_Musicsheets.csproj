@@ -104,6 +104,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Builders\MidiLilyBuilder.cs" />
+    <Compile Include="GlobalConstants.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
     <Compile Include="Managers\MidiSequenceEventArgs.cs" />
     <Compile Include="Managers\WPFStaffsEventArgs.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Messages\CurrentStateMessage.cs" />
     <Compile Include="Managers\FileHandler.cs" />
     <Compile Include="Midi\MidiStaffBuildAdapter.cs" />
+    <Compile Include="Midi\MidiTHING.cs" />
     <Compile Include="Models\LilypondToken.cs" />
     <Compile Include="Models\LilypondTokenKind.cs" />
     <Compile Include="Models\Measure.cs" />
