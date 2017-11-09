@@ -116,6 +116,7 @@
     <Compile Include="Models\Note.cs" />
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Lilypond\Tokenizer.cs" />
+    <Compile Include="Parsers\MidiParser.cs" />
     <Compile Include="ViewModels\MidiPlayerViewModel.cs" />
     <Compile Include="ViewModels\StaffsViewModel.cs" />
     <Compile Include="Views\MidiPlayerCtrl.xaml.cs">
