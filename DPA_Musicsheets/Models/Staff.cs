@@ -8,6 +8,6 @@ namespace DPA_Musicsheets.Models
 {
     class Staff
     {
-        public Bar[] bars;
+        public LinkedList<Measure> measures;
     }
 }
