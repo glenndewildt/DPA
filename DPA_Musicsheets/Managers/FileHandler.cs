@@ -83,6 +83,32 @@ namespace DPA_Musicsheets.Managers
 
 
         // Midi refactoring
+        // next step, refactor out the variables that modify FileHandler-scoped member fields
+        // this state should probably reside in Staff.cs in the end
+        private class MidiFileHandlerAdapter
+        {
+            private FileHandler handler;
+
+            public MidiFileHandlerAdapter(FileHandler handler)
+            {
+                this.handler = handler;
+            }
+
+            public void SetBeatNote(int beatnote)
+            {
+                handler._beatNote = beatnote;
+            }
+
+            public void SetBeatsPerBar(int beatsPerBar)
+            {
+                handler._beatsPerBar = beatsPerBar;
+            }
+
+            public void SetBpm(int bpm)
+            {
+                handler._bpm = bpm;
+            }
+        }
 
         public void LoadMidi(Sequence sequence)
         {
@@ -90,6 +116,7 @@ namespace DPA_Musicsheets.Managers
             lilyPondContent.AddDefaultConfiguration();
 
             MidiParser midiParser = new MidiParser();
+            MidiFileHandlerAdapter fhAdapter = new MidiFileHandlerAdapter(this);
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
@@ -111,32 +138,48 @@ namespace DPA_Musicsheets.Managers
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.TimeSignature:
+                                    // parse the message
                                     Tuple<int, int> timeSignature = midiParser.TimeSignature(metaMessage);
 
-                                    _beatNote = timeSignature.Item1;
-                                    _beatsPerBar = timeSignature.Item2;
+                                    int beatNote = timeSignature.Item1;
+                                    int beatsPerBar = timeSignature.Item2;
 
-                                    lilyPondContent.AddTime(_beatNote, _beatsPerBar);
+                                    fhAdapter.SetBeatNote(beatNote);
+                                    fhAdapter.SetBeatsPerBar(beatsPerBar);
+
+                                    // build lily
+                                    lilyPondContent.AddTime(beatNote, beatsPerBar);
                                     break;
                                 case MetaType.Tempo:
+                                    // parse the message
                                     int tempo = midiParser.Tempo(metaMessage);
 
-                                    _bpm = 60000000 / tempo;
+                                    int bpm = 60000000 / tempo;
+                                    fhAdapter.SetBpm(bpm);
 
-                                    lilyPondContent.AddTempo(_bpm);
+                                    // build lily
+                                    lilyPondContent.AddTempo(bpm);
                                     break;
                                 case MetaType.EndOfTrack:
                                     if (previousNoteAbsoluteTicks > 0)
                                     {
                                         // Finish the last notelength.
+
+                                        // parse the message
                                         double percentageOfBar;
+
+                                        // adapt to lilybuilder interface
                                         int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
+
+                                        // build lily
                                         lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
                                         lilyPondContent.AddNoteSeparator();
 
+                                        // stateful message parse
                                         percentageOfBarReached += percentageOfBar;
                                         if (percentageOfBarReached >= 1)
                                         {
+                                            // build lily
                                             lilyPondContent.AddBar();
                                             percentageOfBar = percentageOfBar - 1;
                                         }
@@ -149,13 +192,17 @@ namespace DPA_Musicsheets.Managers
                             var channelMessage = midiEvent.MidiMessage as ChannelMessage;
                             if (channelMessage.Command == ChannelCommand.NoteOn)
                             {
+                                // parse the message
                                 int loudness = midiParser.Loudness(channelMessage);
                                 if(loudness > 0)
                                 {
                                     // Append the new note.
                                     int currentMidiKey = midiParser.Key(channelMessage);
+
+                                    // build lily
                                     lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
                                     
+                                    // update local state
                                     previousMidiKey = currentMidiKey;
                                     startedNoteIsClosed = false;
                                 }
@@ -163,14 +210,24 @@ namespace DPA_Musicsheets.Managers
                                 {
                                     // Finish the previous note with the length.
                                     double percentageOfBar;
+
+                                    // parse the message
                                     int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
+                                    
+                                    // build lily
                                     lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+
+                                    // update local state
                                     previousNoteAbsoluteTicks = currentAbsoluteTicks;
+
+                                    // build lily
                                     lilyPondContent.AddNoteSeparator();
 
+                                    // update local state
                                     percentageOfBarReached += percentageOfBar;
                                     if (percentageOfBarReached >= 1)
                                     {
+                                        // build lily
                                         lilyPondContent.AddBar();
                                         percentageOfBarReached -= 1;
                                     }
@@ -178,6 +235,7 @@ namespace DPA_Musicsheets.Managers
                                 }
                                 else
                                 {
+                                    // build lily
                                     lilyPondContent.AddCustom("r");
                                 }
                             }
