@@ -107,6 +107,13 @@ namespace DPA_Musicsheets.Managers
                 // in midi, ChannelMessage.Data2 is defined as the 'loudness'
                 return message.Data2;
             }
+
+            // decouple actual Midi interface from DPA_Midi interface, even though we use
+            // the exact same terminology and data underneath.
+            public int AbsoluteTicks(MidiEvent message)
+            {
+                return message.AbsoluteTicks;
+            }
         }
 
         public void LoadMidi(Sequence sequence)
@@ -155,7 +162,8 @@ namespace DPA_Musicsheets.Managers
                                     {
                                         // Finish the last notelength.
                                         double percentageOfBar;
-                                        lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+                                        int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
+                                        lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
                                         lilyPondContent.AddNoteSeparator();
 
                                         percentageOfBarReached += percentageOfBar;
@@ -186,8 +194,9 @@ namespace DPA_Musicsheets.Managers
                                 {
                                     // Finish the previous note with the length.
                                     double percentageOfBar;
-                                    lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, midiEvent.AbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
-                                    previousNoteAbsoluteTicks = midiEvent.AbsoluteTicks;
+                                    int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
+                                    lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, _beatNote, _beatsPerBar, out percentageOfBar));
+                                    previousNoteAbsoluteTicks = currentAbsoluteTicks;
                                     lilyPondContent.AddNoteSeparator();
 
                                     percentageOfBarReached += percentageOfBar;
