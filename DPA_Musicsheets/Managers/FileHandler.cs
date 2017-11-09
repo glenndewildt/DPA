@@ -29,7 +29,6 @@ namespace DPA_Musicsheets.Managers
             }
         }
         public List<MusicalSymbol> WPFStaffs { get; set; } = new List<MusicalSymbol>();
-        private static List<Char> notesorder = new List<Char> { 'c', 'd', 'e', 'f', 'g', 'a', 'b' };
 
         public Sequence MidiSequence { get; set; }
 
@@ -325,6 +324,10 @@ namespace DPA_Musicsheets.Managers
         #region Staffs loading
         private static IEnumerable<MusicalSymbol> GetStaffsFromTokens(LinkedList<LilypondToken> tokens, out string message)
         {
+            // this was defined in FileHandler's scope, is now in function scope
+            // it was used exclusively in GetStaffsFromTokens, FileHandler's complexity
+            List<Char> notesorder = new List<Char> { 'c', 'd', 'e', 'f', 'g', 'a', 'b' };
+
             List<MusicalSymbol> symbols = new List<MusicalSymbol>();
             message = "";
 
