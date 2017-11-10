@@ -79,9 +79,9 @@ namespace DPA_Musicsheets.Midi
                                         int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
 
                                         double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
-                                        Tuple<int, int> p = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
+                                        Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
-                                        lilyPondContent.AddNoteDuration(p.Item1, p.Item2);
+                                        lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
                                         lilyPondContent.AddNoteSeparator();
 
                                         // stateful message parse
@@ -121,9 +121,9 @@ namespace DPA_Musicsheets.Midi
                                     int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
 
                                     double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
-                                    Tuple<int, int> p = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
+                                    Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
-                                    lilyPondContent.AddNoteDuration(p.Item1, p.Item2);
+                                    lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
                                     lilyPondContent.AddNoteSeparator();
 
                                     // update local state
@@ -251,7 +251,7 @@ namespace DPA_Musicsheets.Midi
         }
 
         // technically, this should be part of MidiLilyBuilder since it takes in Midi stuff and outputs partial Lily source code
-        private static string GetNoteName(int previousMidiKey, int midiKey)
+        private string GetNoteName(int previousMidiKey, int midiKey)
         {
             List<string> notes = new List<string> { "c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "ais", "b" };
 
