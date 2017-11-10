@@ -75,15 +75,13 @@ namespace DPA_Musicsheets.Midi
                                     if (previousNoteAbsoluteTicks > 0)
                                     {
                                         // Finish the last notelength.
-
-                                        // parse the message
-                                        double percentageOfBar;
-
                                         // adapt to lilybuilder interface
                                         int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
 
-                                        // build lily
-                                        lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, timeSignature.Item1, timeSignature.Item2, out percentageOfBar));
+                                        double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
+                                        Tuple<int, int> p = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
+
+                                        lilyPondContent.AddNoteDuration(p.Item1, p.Item2);
                                         lilyPondContent.AddNoteSeparator();
 
                                         // stateful message parse
@@ -119,20 +117,17 @@ namespace DPA_Musicsheets.Midi
                                 }
                                 else if (!startedNoteIsClosed)
                                 {
-                                    // Finish the previous note with the length.
-                                    double percentageOfBar;
-
                                     // parse the message
                                     int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
 
-                                    // build lily
-                                    lilyPondContent.AddNoteLength(GetNoteLength(previousNoteAbsoluteTicks, currentAbsoluteTicks, division, timeSignature.Item1, timeSignature.Item2, out percentageOfBar));
+                                    double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
+                                    Tuple<int, int> p = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
+
+                                    lilyPondContent.AddNoteDuration(p.Item1, p.Item2);
+                                    lilyPondContent.AddNoteSeparator();
 
                                     // update local state
-                                    previousNoteAbsoluteTicks = currentAbsoluteTicks;
-
-                                    // build lily
-                                    lilyPondContent.AddNoteSeparator();
+                                    previousNoteAbsoluteTicks = currentAbsoluteTicks;                                    
 
                                     // update local state
                                     percentageOfBarReached += percentageOfBar;
@@ -162,21 +157,16 @@ namespace DPA_Musicsheets.Midi
             this.fileHandler.LoadLilypond(lilyPondContent.Build());
         }
 
-        private string GetNoteLength(int absoluteTicks, int nextNoteAbsoluteTicks, int division, int beatNote, int beatsPerBar, out double percentageOfBar)
+        // technically, this should be part of the MidiLilyBuilder, since it takes in midi stuff and outputs partial lily sourcecode
+        private Tuple<int, int> GetNoteLength(int division, int beatNote, int beatsPerBar, double percentageOfBar)
         {
             int duration = 0;
             int dots = 0;
 
-            double deltaTicks = nextNoteAbsoluteTicks - absoluteTicks;
-
-            if (deltaTicks <= 0)
+            if (percentageOfBar == 0)
             {
-                percentageOfBar = 0;
-                return String.Empty;
+                return new Tuple<int, int>(duration, dots);
             }
-
-            double percentageOfBeatNote = deltaTicks / division;
-            percentageOfBar = (1.0 / beatsPerBar) * percentageOfBeatNote;
 
             for (int noteLength = 32; noteLength >= 1; noteLength -= 1)
             {
@@ -200,38 +190,67 @@ namespace DPA_Musicsheets.Midi
                     else
                         subtractDuration = 2;
 
-                    if (noteLength >= 17)
-                        duration = 32;
-                    else if (noteLength >= 9)
-                        duration = 16;
-                    else if (noteLength >= 5)
-                        duration = 8;
-                    else if (noteLength >= 3)
-                        duration = 4;
-                    else
-                        duration = 2;
-
-                    double currentTime = 0;
-
-                    while (currentTime < (noteLength - subtractDuration))
-                    {
-                        var addtime = 1 / ((subtractDuration / beatNote) * Math.Pow(2, dots));
-                        if (addtime <= 0) break;
-                        currentTime += addtime;
-                        if (currentTime <= (noteLength - subtractDuration))
-                        {
-                            dots++;
-                        }
-                        if (dots >= 4) break;
-                    }
+                    duration = CalcDuration(noteLength);
+                    dots = CalcAmountOfDots(beatNote, dots, noteLength, subtractDuration);
 
                     break;
                 }
             }
 
-            return duration + new String('.', dots);
+            return new Tuple<int, int>(duration, dots);
         }
 
+        private static double CalcPercentageOfBar(int division, int beatsPerBar, int absoluteTicks, int nextNoteAbsoluteTicks)
+        {
+            double deltaTicks = nextNoteAbsoluteTicks - absoluteTicks;
+
+            if (deltaTicks <= 0)
+            {
+                return 0;
+            }
+
+            double percentageOfBar;
+            double percentageOfBeatNote = deltaTicks / division;
+            percentageOfBar = (1.0 / beatsPerBar) * percentageOfBeatNote;
+            return percentageOfBar;
+        }
+
+        private static int CalcDuration(int noteLength)
+        {
+            int duration;
+            if (noteLength >= 17)
+                duration = 32;
+            else if (noteLength >= 9)
+                duration = 16;
+            else if (noteLength >= 5)
+                duration = 8;
+            else if (noteLength >= 3)
+                duration = 4;
+            else
+                duration = 2;
+            return duration;
+        }
+
+        private static int CalcAmountOfDots(int beatNote, int dots, int noteLength, int subtractDuration)
+        {
+            double currentTime = 0;
+
+            while (currentTime < (noteLength - subtractDuration))
+            {
+                var addtime = 1 / ((subtractDuration / beatNote) * Math.Pow(2, dots));
+                if (addtime <= 0) break;
+                currentTime += addtime;
+                if (currentTime <= (noteLength - subtractDuration))
+                {
+                    dots++;
+                }
+                if (dots >= 4) break;
+            }
+
+            return dots;
+        }
+
+        // technically, this should be part of MidiLilyBuilder since it takes in Midi stuff and outputs partial Lily source code
         private static string GetNoteName(int previousMidiKey, int midiKey)
         {
             List<string> notes = new List<string> { "c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "ais", "b" };

@@ -46,6 +46,11 @@ namespace DPA_Musicsheets.Builders
             _lilyProduct.Append(note);
         }
 
+        public void AddNoteDuration(int duration, int amountOfDots)
+        {
+            _lilyProduct.Append(duration + new string('.', amountOfDots));
+        }
+
         public void AddNoteSeparator()
         {
             _lilyProduct.Append(" ");
