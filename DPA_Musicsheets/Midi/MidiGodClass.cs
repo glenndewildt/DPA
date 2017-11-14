@@ -23,8 +23,8 @@ namespace DPA_Musicsheets.Midi
             MidiLilyBuilder lilyPondContent = new MidiLilyBuilder();
             lilyPondContent.AddDefaultConfiguration();
 
-            MidiParser midiParser = new MidiParser();
-            MidiStaffBuildAdapter midiStaffBuilder = new MidiStaffBuildAdapter();
+            MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
+            MidiStaffBuilder midiStaffBuilder = new MidiStaffBuilder();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
@@ -50,7 +50,7 @@ namespace DPA_Musicsheets.Midi
                             {
                                 case MetaType.TimeSignature:
                                     // parse the message
-                                    timeSignature = midiParser.TimeSignature(metaMessage);
+                                    timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
 
                                     int beatNote = timeSignature.Item1;
                                     int beatsPerBar = timeSignature.Item2;
@@ -63,7 +63,7 @@ namespace DPA_Musicsheets.Midi
                                     break;
                                 case MetaType.Tempo:
                                     // parse the message
-                                    int tempo = midiParser.Tempo(metaMessage);
+                                    int tempo = midiMessageInterpreter.Tempo(metaMessage);
 
                                     bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
                                     midiStaffBuilder.SetBpm(bpm);
@@ -76,7 +76,7 @@ namespace DPA_Musicsheets.Midi
                                     {
                                         // Finish the last notelength.
                                         // adapt to lilybuilder interface
-                                        int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
+                                        int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
 
                                         double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
                                         Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
@@ -89,7 +89,8 @@ namespace DPA_Musicsheets.Midi
                                         if (percentageOfBarReached >= 1)
                                         {
                                             // build lily
-                                            lilyPondContent.AddBar();
+                                            lilyPondContent.AddBar(); 
+                                            midiStaffBuilder.AddMeasure();
                                             percentageOfBar = percentageOfBar - 1;
                                         }
                                     }
@@ -102,11 +103,11 @@ namespace DPA_Musicsheets.Midi
                             if (channelMessage.Command == ChannelCommand.NoteOn)
                             {
                                 // parse the message
-                                int loudness = midiParser.Loudness(channelMessage);
+                                int loudness = midiMessageInterpreter.Loudness(channelMessage);
                                 if (loudness > 0)
                                 {
                                     // Append the new note.
-                                    int currentMidiKey = midiParser.Key(channelMessage);
+                                    int currentMidiKey = midiMessageInterpreter.Key(channelMessage);
 
                                     // build lily
                                     lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
@@ -118,7 +119,7 @@ namespace DPA_Musicsheets.Midi
                                 else if (!startedNoteIsClosed)
                                 {
                                     // parse the message
-                                    int currentAbsoluteTicks = midiParser.AbsoluteTicks(midiEvent);
+                                    int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
 
                                     double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
                                     Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
@@ -231,6 +232,14 @@ namespace DPA_Musicsheets.Midi
             return duration;
         }
 
+        /// <summary>
+        /// Calculates the amount of dots needed for a lily note
+        /// </summary>
+        /// <param name="beatNote"></param>
+        /// <param name="dots"></param>
+        /// <param name="noteLength"></param>
+        /// <param name="subtractDuration"></param>
+        /// <returns></returns>
         private static int CalcAmountOfDots(int beatNote, int dots, int noteLength, int subtractDuration)
         {
             double currentTime = 0;
@@ -250,7 +259,6 @@ namespace DPA_Musicsheets.Midi
             return dots;
         }
 
-        // technically, this should be part of MidiLilyBuilder since it takes in Midi stuff and outputs partial Lily source code
         private string GetNoteName(int previousMidiKey, int midiKey)
         {
             List<string> notes = new List<string> { "c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "ais", "b" };

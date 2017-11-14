@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Midi
 {
-    public class MidiParser
+    public class MidiMessageInterpreter
     {
         public Tuple<int, int> TimeSignature(MetaMessage message)
         {
@@ -34,7 +34,7 @@ namespace DPA_Musicsheets.Midi
             return message.Data2;
         }
 
-        // decouple actual Midi interface from DPA_Midi interface, even though we use
+        // decouples actual Midi interface from DPA_Midi interface, even though we use
         // the exact same terminology and data underneath.
         public int AbsoluteTicks(MidiEvent message)
         {

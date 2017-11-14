@@ -8,7 +8,7 @@ namespace DPA_Musicsheets.Models
 {
     public class Staff
     { 
-        public LinkedList<Measure> measures;
+        public LinkedList<Measure> measures = new LinkedList<Measure>();
 
         // beats per minute
         public int bpm;

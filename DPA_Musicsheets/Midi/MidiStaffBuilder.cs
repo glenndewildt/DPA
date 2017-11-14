@@ -7,17 +7,22 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Midi
 {
-    public class MidiStaffBuildAdapter
+    // builds a staff, this class was designed as a refactor from midi, hence the "Midi" bias
+    // it has 0 knowledge of Midi though, should be reusable.
+    public class MidiStaffBuilder
     {
-        // builds a staff from midi interface
         private Staff _staffProduct;
+        private Measure _currentMeasure;
+
 
         private int beatNote = 0;
         private int beatsPerBar = 0;
 
-        public MidiStaffBuildAdapter()
+        public MidiStaffBuilder()
         {
             _staffProduct = new Staff();
+            _currentMeasure = new Measure();
+            _staffProduct.measures.AddFirst(_currentMeasure);
         }
 
         public void SetBeatNote(int beatNote)
@@ -46,6 +51,13 @@ namespace DPA_Musicsheets.Midi
 
             return _staffProduct;
         }
-    }
 
+        public void AddMeasure()
+        {
+            Measure newMeasure = new Measure();
+            _staffProduct.measures.AddAfter(_staffProduct.measures.Find(_currentMeasure), newMeasure);
+
+            _currentMeasure = newMeasure;
+        }
+    }
 }
