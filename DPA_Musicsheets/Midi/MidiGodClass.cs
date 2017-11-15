@@ -13,21 +13,22 @@ namespace DPA_Musicsheets.Midi
     public class MidiGodClass
     {
         private FileHandler fileHandler;
+        private MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
+
+        private MidiLilyBuilder lilyPondContent;
 
         public MidiGodClass(FileHandler fileHandler)
         {
             this.fileHandler = fileHandler;
+
+            lilyPondContent = new MidiLilyBuilder();
         }
 
         public void LoadMidi(Sequence sequence)
         {
-            MidiLilyBuilder lilyPondContent = new MidiLilyBuilder();
             lilyPondContent.AddDefaultConfiguration();
 
-            MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
             MidiStaffBuilder midiStaffBuilder = new MidiStaffBuilder();
-
-            StaffToLilyConverter staffToLilyConverter = new StaffToLilyConverter();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
@@ -52,19 +53,19 @@ namespace DPA_Musicsheets.Midi
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.TimeSignature:
-                                    timeSignature = TO_PARSER_TimeSignature(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
+                                    timeSignature = ParseTimeSignature(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
                                     break;
                                 case MetaType.Tempo:
-                                    bpm = TO_PARSER_Tempo(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
+                                    bpm = ParseTempo(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
                                     break;
                                 case MetaType.EndOfTrack:
-                                    percentageOfBarReached = TO_PARSER_EndOfTrack(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, division, previousNoteAbsoluteTicks, percentageOfBarReached, timeSignature, midiEvent);
+                                    percentageOfBarReached = ParseEndOfTrack(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, division, previousNoteAbsoluteTicks, percentageOfBarReached, timeSignature, midiEvent);
                                     break;
                                 default: break;
                             }
                             break;
                         case MessageType.Channel:
-                            TO_PARSER_Channel(lilyPondContent, midiMessageInterpreter, division, ref previousMidiKey, ref previousNoteAbsoluteTicks, ref percentageOfBarReached, ref startedNoteIsClosed, timeSignature, midiEvent);
+                            ParseChannel(lilyPondContent, midiMessageInterpreter, division, ref previousMidiKey, ref previousNoteAbsoluteTicks, ref percentageOfBarReached, ref startedNoteIsClosed, timeSignature, midiEvent);
                             break;
                     }
                 }
@@ -75,12 +76,10 @@ namespace DPA_Musicsheets.Midi
             Staff staff = midiStaffBuilder.Build();
 
             fileHandler.staff = staff;
-
-            staffToLilyConverter.Convert(staff);
             fileHandler.LoadLilypond(lilyPondContent.Build());
         }
 
-        private void TO_PARSER_Channel(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)
+        private void ParseChannel(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)
         {
             var channelMessage = midiEvent.MidiMessage as ChannelMessage;
             if (channelMessage.Command == ChannelCommand.NoteOn)
@@ -131,7 +130,7 @@ namespace DPA_Musicsheets.Midi
             }
         }
 
-        private double TO_PARSER_EndOfTrack(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, int division, int previousNoteAbsoluteTicks, double percentageOfBarReached, Tuple<int, int> timeSignature, MidiEvent midiEvent)
+        private double ParseEndOfTrack(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, int division, int previousNoteAbsoluteTicks, double percentageOfBarReached, Tuple<int, int> timeSignature, MidiEvent midiEvent)
         {
             if (previousNoteAbsoluteTicks > 0)
             {
@@ -159,7 +158,7 @@ namespace DPA_Musicsheets.Midi
             return percentageOfBarReached;
         }
 
-        private static int TO_PARSER_Tempo(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
+        private static int ParseTempo(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
         {
             int bpm;
             // parse the message
@@ -173,7 +172,7 @@ namespace DPA_Musicsheets.Midi
             return bpm;
         }
 
-        private static Tuple<int, int> TO_PARSER_TimeSignature(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
+        private static Tuple<int, int> ParseTimeSignature(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
         {
             // parse the message
             Tuple<int, int> timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
