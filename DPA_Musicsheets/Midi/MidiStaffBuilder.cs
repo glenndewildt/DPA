@@ -14,7 +14,6 @@ namespace DPA_Musicsheets.Midi
         private Staff _staffProduct;
         private Measure _currentMeasure;
 
-
         private int beatNote = 0;
         private int beatsPerBar = 0;
 

@@ -1,5 +1,6 @@
 ﻿using DPA_Musicsheets.Builders;
 using DPA_Musicsheets.Managers;
+using DPA_Musicsheets.Models;
 using Sanford.Multimedia.Midi;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Midi
 {
-    class MidiGodClass
+    public class MidiGodClass
     {
         private FileHandler fileHandler;
 
@@ -25,6 +26,8 @@ namespace DPA_Musicsheets.Midi
 
             MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
             MidiStaffBuilder midiStaffBuilder = new MidiStaffBuilder();
+
+            StaffToLilyConverter staffToLilyConverter = new StaffToLilyConverter();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
@@ -51,7 +54,7 @@ namespace DPA_Musicsheets.Midi
                                 case MetaType.TimeSignature:
                                     // parse the message
                                     timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
-
+                                    
                                     int beatNote = timeSignature.Item1;
                                     int beatsPerBar = timeSignature.Item2;
 
@@ -59,7 +62,7 @@ namespace DPA_Musicsheets.Midi
                                     midiStaffBuilder.SetBeatsPerBar(beatsPerBar);
 
                                     // build lily
-                                    lilyPondContent.AddTime(beatNote, beatsPerBar);
+                                    lilyPondContent.AddTimeSignature(beatNote, beatsPerBar);
                                     break;
                                 case MetaType.Tempo:
                                     // parse the message
@@ -153,9 +156,12 @@ namespace DPA_Musicsheets.Midi
 
             lilyPondContent.CloseScope();
 
-            this.fileHandler.staff = midiStaffBuilder.Build();
+            Staff staff = midiStaffBuilder.Build();
 
-            this.fileHandler.LoadLilypond(lilyPondContent.Build());
+            fileHandler.staff = staff;
+
+            staffToLilyConverter.Convert(staff);
+            fileHandler.LoadLilypond(lilyPondContent.Build());
         }
 
         // technically, this should be part of the MidiLilyBuilder, since it takes in midi stuff and outputs partial lily sourcecode

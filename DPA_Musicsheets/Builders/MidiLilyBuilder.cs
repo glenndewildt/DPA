@@ -21,7 +21,7 @@ namespace DPA_Musicsheets.Builders
             _lilyProduct.AppendLine("\\clef treble");
         }
 
-        public void AddTime(int beatNote, int beatsPerBar)
+        public void AddTimeSignature(int beatNote, int beatsPerBar)
         {
             _lilyProduct.AppendLine($"\\time {beatNote}/{beatsPerBar}");
         }
