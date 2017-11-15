@@ -52,103 +52,19 @@ namespace DPA_Musicsheets.Midi
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.TimeSignature:
-                                    // parse the message
-                                    timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
-                                    
-                                    int beatNote = timeSignature.Item1;
-                                    int beatsPerBar = timeSignature.Item2;
-
-                                    midiStaffBuilder.SetBeatNote(beatNote);
-                                    midiStaffBuilder.SetBeatsPerBar(beatsPerBar);
-
-                                    // build lily
-                                    lilyPondContent.AddTimeSignature(beatNote, beatsPerBar);
+                                    timeSignature = TO_PARSER_TimeSignature(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
                                     break;
                                 case MetaType.Tempo:
-                                    // parse the message
-                                    int tempo = midiMessageInterpreter.Tempo(metaMessage);
-
-                                    bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
-                                    midiStaffBuilder.SetBpm(bpm);
-
-                                    // build lily
-                                    lilyPondContent.AddTempo(bpm);
+                                    bpm = TO_PARSER_Tempo(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
                                     break;
                                 case MetaType.EndOfTrack:
-                                    if (previousNoteAbsoluteTicks > 0)
-                                    {
-                                        // Finish the last notelength.
-                                        // adapt to lilybuilder interface
-                                        int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
-
-                                        double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
-                                        Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
-
-                                        lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
-                                        lilyPondContent.AddNoteSeparator();
-
-                                        // stateful message parse
-                                        percentageOfBarReached += percentageOfBar;
-                                        if (percentageOfBarReached >= 1)
-                                        {
-                                            // build lily
-                                            lilyPondContent.AddBar(); 
-                                            midiStaffBuilder.AddMeasure();
-                                            percentageOfBar = percentageOfBar - 1;
-                                        }
-                                    }
+                                    percentageOfBarReached = TO_PARSER_EndOfTrack(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, division, previousNoteAbsoluteTicks, percentageOfBarReached, timeSignature, midiEvent);
                                     break;
                                 default: break;
                             }
                             break;
                         case MessageType.Channel:
-                            var channelMessage = midiEvent.MidiMessage as ChannelMessage;
-                            if (channelMessage.Command == ChannelCommand.NoteOn)
-                            {
-                                // parse the message
-                                int loudness = midiMessageInterpreter.Loudness(channelMessage);
-                                if (loudness > 0)
-                                {
-                                    // Append the new note.
-                                    int currentMidiKey = midiMessageInterpreter.Key(channelMessage);
-
-                                    // build lily
-                                    lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
-
-                                    // update local state
-                                    previousMidiKey = currentMidiKey;
-                                    startedNoteIsClosed = false;
-                                }
-                                else if (!startedNoteIsClosed)
-                                {
-                                    // parse the message
-                                    int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
-
-                                    double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
-                                    Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
-
-                                    lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
-                                    lilyPondContent.AddNoteSeparator();
-
-                                    // update local state
-                                    previousNoteAbsoluteTicks = currentAbsoluteTicks;                                    
-
-                                    // update local state
-                                    percentageOfBarReached += percentageOfBar;
-                                    if (percentageOfBarReached >= 1)
-                                    {
-                                        // build lily
-                                        lilyPondContent.AddBar();
-                                        percentageOfBarReached -= 1;
-                                    }
-                                    startedNoteIsClosed = true;
-                                }
-                                else
-                                {
-                                    // build lily
-                                    lilyPondContent.AddCustom("r");
-                                }
-                            }
+                            TO_PARSER_Channel(lilyPondContent, midiMessageInterpreter, division, ref previousMidiKey, ref previousNoteAbsoluteTicks, ref percentageOfBarReached, ref startedNoteIsClosed, timeSignature, midiEvent);
                             break;
                     }
                 }
@@ -162,6 +78,114 @@ namespace DPA_Musicsheets.Midi
 
             staffToLilyConverter.Convert(staff);
             fileHandler.LoadLilypond(lilyPondContent.Build());
+        }
+
+        private void TO_PARSER_Channel(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)
+        {
+            var channelMessage = midiEvent.MidiMessage as ChannelMessage;
+            if (channelMessage.Command == ChannelCommand.NoteOn)
+            {
+                // parse the message
+                int loudness = midiMessageInterpreter.Loudness(channelMessage);
+                if (loudness > 0)
+                {
+                    // Append the new note.
+                    int currentMidiKey = midiMessageInterpreter.Key(channelMessage);
+
+                    // build lily
+                    lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
+
+                    // update local state
+                    previousMidiKey = currentMidiKey;
+                    startedNoteIsClosed = false;
+                }
+                else if (!startedNoteIsClosed)
+                {
+                    // parse the message
+                    int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
+
+                    double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
+                    Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
+
+                    lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
+                    lilyPondContent.AddNoteSeparator();
+
+                    // update local state
+                    previousNoteAbsoluteTicks = currentAbsoluteTicks;
+
+                    // update local state
+                    percentageOfBarReached += percentageOfBar;
+                    if (percentageOfBarReached >= 1)
+                    {
+                        // build lily
+                        lilyPondContent.AddBar();
+                        percentageOfBarReached -= 1;
+                    }
+                    startedNoteIsClosed = true;
+                }
+                else
+                {
+                    // build lily
+                    lilyPondContent.AddCustom("r");
+                }
+            }
+        }
+
+        private double TO_PARSER_EndOfTrack(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, int division, int previousNoteAbsoluteTicks, double percentageOfBarReached, Tuple<int, int> timeSignature, MidiEvent midiEvent)
+        {
+            if (previousNoteAbsoluteTicks > 0)
+            {
+                // Finish the last notelength.
+                // adapt to lilybuilder interface
+                int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
+
+                double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
+                Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
+
+                lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
+                lilyPondContent.AddNoteSeparator();
+
+                // stateful message parse
+                percentageOfBarReached += percentageOfBar;
+                if (percentageOfBarReached >= 1)
+                {
+                    // build lily
+                    lilyPondContent.AddBar();
+                    midiStaffBuilder.AddMeasure();
+                    percentageOfBar = percentageOfBar - 1;
+                }
+            }
+
+            return percentageOfBarReached;
+        }
+
+        private static int TO_PARSER_Tempo(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
+        {
+            int bpm;
+            // parse the message
+            int tempo = midiMessageInterpreter.Tempo(metaMessage);
+
+            bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
+            midiStaffBuilder.SetBpm(bpm);
+
+            // build lily
+            lilyPondContent.AddTempo(bpm);
+            return bpm;
+        }
+
+        private static Tuple<int, int> TO_PARSER_TimeSignature(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
+        {
+            // parse the message
+            Tuple<int, int> timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
+            int beatNote = timeSignature.Item1;
+            int beatsPerBar = timeSignature.Item2;
+
+            midiStaffBuilder.SetBeatNote(beatNote);
+            midiStaffBuilder.SetBeatsPerBar(beatsPerBar);
+
+            // build lily
+            lilyPondContent.AddTimeSignature(beatNote, beatsPerBar);
+            return timeSignature;
         }
 
         // technically, this should be part of the MidiLilyBuilder, since it takes in midi stuff and outputs partial lily sourcecode

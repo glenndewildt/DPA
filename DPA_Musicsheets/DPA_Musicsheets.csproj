@@ -122,6 +122,7 @@
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Lilypond\Tokenizer.cs" />
     <Compile Include="Midi\MidiMessageInterpreter.cs" />
+    <Compile Include="Models\StaffToLilyConverter.cs" />
     <Compile Include="ViewModels\MidiPlayerViewModel.cs" />
     <Compile Include="ViewModels\StaffsViewModel.cs" />
     <Compile Include="Views\MidiPlayerCtrl.xaml.cs">
