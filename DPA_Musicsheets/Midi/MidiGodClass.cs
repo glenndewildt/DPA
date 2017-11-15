@@ -16,19 +16,20 @@ namespace DPA_Musicsheets.Midi
         private MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
 
         private MidiLilyBuilder lilyPondContent;
+        private MidiStaffBuilder midiStaffBuilder;
+
 
         public MidiGodClass(FileHandler fileHandler)
         {
             this.fileHandler = fileHandler;
 
             lilyPondContent = new MidiLilyBuilder();
+            midiStaffBuilder = new MidiStaffBuilder();
         }
 
         public void LoadMidi(Sequence sequence)
         {
             lilyPondContent.AddDefaultConfiguration();
-
-            MidiStaffBuilder midiStaffBuilder = new MidiStaffBuilder();
 
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
