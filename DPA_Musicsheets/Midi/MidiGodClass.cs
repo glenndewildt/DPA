@@ -18,7 +18,6 @@ namespace DPA_Musicsheets.Midi
         private MidiLilyBuilder lilyPondContent;
         private MidiStaffBuilder midiStaffBuilder;
 
-
         public MidiGodClass(FileHandler fileHandler)
         {
             this.fileHandler = fileHandler;
@@ -31,6 +30,8 @@ namespace DPA_Musicsheets.Midi
         {
             lilyPondContent.AddDefaultConfiguration();
 
+            // The midi loading acts as a sort of state machine
+            // however, it's not modelled out as a state-machine in the code itself
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
             int previousNoteAbsoluteTicks = 0;
@@ -54,19 +55,19 @@ namespace DPA_Musicsheets.Midi
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.TimeSignature:
-                                    timeSignature = ParseTimeSignature(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
+                                    timeSignature = ParseTimeSignature(midiStaffBuilder, metaMessage);
                                     break;
                                 case MetaType.Tempo:
-                                    bpm = ParseTempo(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, metaMessage);
+                                    bpm = ParseTempo(midiStaffBuilder, metaMessage);
                                     break;
                                 case MetaType.EndOfTrack:
-                                    percentageOfBarReached = ParseEndOfTrack(lilyPondContent, midiMessageInterpreter, midiStaffBuilder, division, previousNoteAbsoluteTicks, percentageOfBarReached, timeSignature, midiEvent);
+                                    percentageOfBarReached = ParseEndOfTrack(midiStaffBuilder, division, previousNoteAbsoluteTicks, percentageOfBarReached, timeSignature, midiEvent);
                                     break;
                                 default: break;
                             }
                             break;
                         case MessageType.Channel:
-                            ParseChannel(lilyPondContent, midiMessageInterpreter, division, ref previousMidiKey, ref previousNoteAbsoluteTicks, ref percentageOfBarReached, ref startedNoteIsClosed, timeSignature, midiEvent);
+                            ParseChannel(division, ref previousMidiKey, ref previousNoteAbsoluteTicks, ref percentageOfBarReached, ref startedNoteIsClosed, timeSignature, midiEvent);
                             break;
                     }
                 }
@@ -80,7 +81,7 @@ namespace DPA_Musicsheets.Midi
             fileHandler.LoadLilypond(lilyPondContent.Build());
         }
 
-        private void ParseChannel(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)
+        private void ParseChannel(int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)
         {
             var channelMessage = midiEvent.MidiMessage as ChannelMessage;
             if (channelMessage.Command == ChannelCommand.NoteOn)
@@ -131,7 +132,7 @@ namespace DPA_Musicsheets.Midi
             }
         }
 
-        private double ParseEndOfTrack(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, int division, int previousNoteAbsoluteTicks, double percentageOfBarReached, Tuple<int, int> timeSignature, MidiEvent midiEvent)
+        private double ParseEndOfTrack(MidiStaffBuilder midiStaffBuilder, int division, int previousNoteAbsoluteTicks, double percentageOfBarReached, Tuple<int, int> timeSignature, MidiEvent midiEvent)
         {
             if (previousNoteAbsoluteTicks > 0)
             {
@@ -159,7 +160,7 @@ namespace DPA_Musicsheets.Midi
             return percentageOfBarReached;
         }
 
-        private static int ParseTempo(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
+        private int ParseTempo(MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
         {
             int bpm;
             // parse the message
@@ -173,7 +174,7 @@ namespace DPA_Musicsheets.Midi
             return bpm;
         }
 
-        private static Tuple<int, int> ParseTimeSignature(MidiLilyBuilder lilyPondContent, MidiMessageInterpreter midiMessageInterpreter, MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
+        private Tuple<int, int> ParseTimeSignature(MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
         {
             // parse the message
             Tuple<int, int> timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
@@ -231,7 +232,7 @@ namespace DPA_Musicsheets.Midi
             return new Tuple<int, int>(duration, dots);
         }
 
-        private static double CalcPercentageOfBar(int division, int beatsPerBar, int absoluteTicks, int nextNoteAbsoluteTicks)
+        private double CalcPercentageOfBar(int division, int beatsPerBar, int absoluteTicks, int nextNoteAbsoluteTicks)
         {
             double deltaTicks = nextNoteAbsoluteTicks - absoluteTicks;
 
@@ -246,7 +247,7 @@ namespace DPA_Musicsheets.Midi
             return percentageOfBar;
         }
 
-        private static int CalcDuration(int noteLength)
+        private int CalcDuration(int noteLength)
         {
             int duration;
             if (noteLength >= 17)
@@ -270,7 +271,7 @@ namespace DPA_Musicsheets.Midi
         /// <param name="noteLength"></param>
         /// <param name="subtractDuration"></param>
         /// <returns></returns>
-        private static int CalcAmountOfDots(int beatNote, int dots, int noteLength, int subtractDuration)
+        private int CalcAmountOfDots(int beatNote, int dots, int noteLength, int subtractDuration)
         {
             double currentTime = 0;
 
