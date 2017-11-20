@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    public class Measure : MusicalComposite
+    public abstract class MusicalComposite
     {
-        public LinkedList<Note> notes;
-        public Tuple<int, int> timeSignature;
+        public abstract void AddChild(MusicalComposite m);
+        public abstract void RemoveChild(MusicalComposite m);
     }
 }
