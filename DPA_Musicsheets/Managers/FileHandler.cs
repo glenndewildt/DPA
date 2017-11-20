@@ -38,11 +38,11 @@ namespace DPA_Musicsheets.Managers
 
         public Staff staff;
 
-        private MidiGodClass midiINTERMEDIATEREFACTORThing;
+        private MidiLoader midiLoader;
 
         public FileHandler()
         {
-            midiINTERMEDIATEREFACTORThing = new MidiGodClass(this);
+            midiLoader = new MidiLoader(this);
         }
 
         public void OpenFile(string fileName)
@@ -52,7 +52,7 @@ namespace DPA_Musicsheets.Managers
                 MidiSequence = new Sequence();
                 MidiSequence.Load(fileName);
                 MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
-                midiINTERMEDIATEREFACTORThing.LoadMidi(MidiSequence);
+                midiLoader.LoadMidi(MidiSequence);
             }
             else if (Path.GetExtension(fileName).EndsWith(".ly"))
             {

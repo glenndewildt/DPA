@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Builders
 {
-    public class MidiLilyBuilder
+    public class MidiLilyBuilder : IMidiLilyBuilder
     {
         private StringBuilder _lilyProduct;
 

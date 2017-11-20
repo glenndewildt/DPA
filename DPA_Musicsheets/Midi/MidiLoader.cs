@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Midi
 {
-    public class MidiGodClass
+    public class MidiLoader
     {
         private FileHandler fileHandler;
         private MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
@@ -18,7 +18,7 @@ namespace DPA_Musicsheets.Midi
         private MidiLilyBuilder lilyPondContent;
         private MidiStaffBuilder midiStaffBuilder;
 
-        public MidiGodClass(FileHandler fileHandler)
+        public MidiLoader(FileHandler fileHandler)
         {
             this.fileHandler = fileHandler;
 
@@ -30,14 +30,14 @@ namespace DPA_Musicsheets.Midi
         {
             lilyPondContent.AddDefaultConfiguration();
 
-            // The midi loading acts as a sort of state machine
-            // however, it's not modelled out as a state-machine in the code itself
+            // This function is best seen as a midi/musical state machine
+            // these 7 lines of code define the state of the machine
+            // read the rest of the comments in this function for more info
             int division = sequence.Division;
             int previousMidiKey = 60; // Central C;
             int previousNoteAbsoluteTicks = 0;
             double percentageOfBarReached = 0;
             bool startedNoteIsClosed = true;
-
             Tuple<int, int> timeSignature = null;
             int bpm;
 
@@ -52,6 +52,8 @@ namespace DPA_Musicsheets.Midi
                     {
                         case MessageType.Meta:
                             var metaMessage = midiMessage as MetaMessage;
+                            // these three messages change the state of the machine on a high-level
+                            // hence the "Meta" name
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.TimeSignature:
@@ -67,6 +69,9 @@ namespace DPA_Musicsheets.Midi
                             }
                             break;
                         case MessageType.Channel:
+                            // this message is responsible for using the data in the state machine
+                            // to create notes, pauses and their timings, based on the midi state machine's state.
+                            // note that this thing has its own state as well..
                             ParseChannel(division, ref previousMidiKey, ref previousNoteAbsoluteTicks, ref percentageOfBarReached, ref startedNoteIsClosed, timeSignature, midiEvent);
                             break;
                     }

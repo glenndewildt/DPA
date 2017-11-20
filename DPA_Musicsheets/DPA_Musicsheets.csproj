@@ -103,7 +103,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Builders\IMidiLilyBuilder.cs" />
     <Compile Include="Builders\MidiLilyBuilder.cs" />
+    <Compile Include="Builders\MidiStaffBuilder.cs" />
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
     <Compile Include="Managers\MidiSequenceEventArgs.cs" />
@@ -114,7 +116,7 @@
     <Compile Include="Midi\MidiMeasureBuilder.cs" />
     <Compile Include="Midi\MidiNoteBuilder.cs" />
     <Compile Include="Midi\MidiStaffBuilder.cs" />
-    <Compile Include="Midi\MidiGodClass.cs" />
+    <Compile Include="Midi\MidiLoader.cs" />
     <Compile Include="Models\LilypondToken.cs" />
     <Compile Include="Models\LilypondTokenKind.cs" />
     <Compile Include="Models\Measure.cs" />

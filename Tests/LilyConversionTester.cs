@@ -47,7 +47,7 @@ g8 b8 d8 fis8 g2 |
 
             FileHandler handler = new FileHandler();
 
-            MidiGodClass midiGod = new MidiGodClass(handler);
+            MidiLoader midiGod = new MidiLoader(handler);
             midiGod.LoadMidi(MidiSequence);
 
             string actualResult = staffToLilyConverter.Convert(handler.staff);
