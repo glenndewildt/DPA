@@ -52,79 +52,10 @@ namespace DPA_Musicsheets.Managers
             opener.Open(fileName);
         }
 
-        private class FileOpenerFactory
+        public void HandleMidiOpen()
         {
-            private FileHandler _handler;
-
-            public FileOpenerFactory(FileHandler handler)
-            {
-                _handler = handler;
-            }
-
-            public abstract class FileOpener
-            {
-                public abstract void Open(string filename);
-            }
-
-            public FileOpener GetOpener(string fileName)
-            {
-                FileOpener opener;
-                string extension = Path.GetExtension(fileName);
-
-                if (extension.EndsWith(".mid"))
-                {
-                    opener = new MidiOpener(_handler);
-                }
-                else if (extension.EndsWith(".ly"))
-                {
-                    opener = new LilyOpener(_handler);
-                } else
-                {
-                    throw new Exception("Extension `" + Path.GetExtension(fileName) + "` is not supported");
-                }
-
-                return opener;
-            }
-
-            public class MidiOpener : FileOpener {
-                private FileHandler _handler;
-
-                public MidiOpener(FileHandler handler)
-                {
-                    _handler = handler;
-                }
-
-                public override void Open(string fileName)
-                {
-                    _handler.MidiSequence = new Sequence();
-                    _handler.MidiSequence.Load(fileName);
-                    _handler.MidiSequenceChanged?.Invoke(_handler, new MidiSequenceEventArgs() { MidiSequence = _handler.MidiSequence });
-                    _handler.midiLoader.LoadMidi(_handler.MidiSequence);
-                }
-            }
-
-            public class LilyOpener : FileOpener
-            {
-                private FileHandler _handler;
-
-                public LilyOpener(FileHandler handler)
-                {
-                    _handler = handler;
-                }
-
-                public override void Open(string fileName)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var line in File.ReadAllLines(fileName))
-                    {
-                        sb.AppendLine(line);
-                    }
-
-                    _handler.LilypondText = sb.ToString();
-
-                    _handler.LoadLilypond(sb.ToString());
-                }
-            }
+            this.MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = this.MidiSequence });
+            this.midiLoader.LoadMidi(this.MidiSequence);
         }
 
         public void LoadLilypond(string content)
