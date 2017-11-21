@@ -11,6 +11,8 @@ namespace DPA_Musicsheets.Models
         public int duration;
         public int pitch;
 
+        public override string ComponentName => "Note";
+
         public override void AddChild(MusicalComponent m)
         {
             throw new NotImplementedException("Notes can't have children");

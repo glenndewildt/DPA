@@ -53,6 +53,7 @@ namespace DPA_Musicsheets.Managers
                 MidiSequence.Load(fileName);
                 MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
                 midiLoader.LoadMidi(MidiSequence);
+                Staff __debugstaff = midiLoader.GetStaff();
             }
             else if (Path.GetExtension(fileName).EndsWith(".ly"))
             {

@@ -10,6 +10,8 @@ namespace DPA_Musicsheets.Models
     {
         protected LinkedList<MusicalComponent> _children = new LinkedList<MusicalComponent>();
 
+        public override string ComponentName => "MusicalComposite";
+
         public override void AddChild(MusicalComponent m)
         {
             _children.AddLast(m);
