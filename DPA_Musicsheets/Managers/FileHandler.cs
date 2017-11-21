@@ -45,41 +45,86 @@ namespace DPA_Musicsheets.Managers
             midiLoader = new MidiLoader(this);
         }
 
-        private void OpenMidi(string fileName)
-        {
-            MidiSequence = new Sequence();
-            MidiSequence.Load(fileName);
-            MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
-            midiLoader.LoadMidi(MidiSequence);
-        }
-
         public void OpenFile(string fileName)
         {
-            if (Path.GetExtension(fileName).EndsWith(".mid"))
-            {
-                OpenMidi(fileName);
-            }
-            else if (Path.GetExtension(fileName).EndsWith(".ly"))
-            {
-                OpenLily(fileName);
-            }
-            else
-            {
-                throw new NotSupportedException($"File extension {Path.GetExtension(fileName)} is not supported.");
-            }
+            FileOpenerFactory f = new FileOpenerFactory(this);
+            FileOpenerFactory.FileOpener opener = f.GetOpener(fileName);
+            opener.Open(fileName);
         }
 
-        private void OpenLily(string fileName)
+        private class FileOpenerFactory
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (var line in File.ReadAllLines(fileName))
+            private FileHandler _handler;
+
+            public FileOpenerFactory(FileHandler handler)
             {
-                sb.AppendLine(line);
+                _handler = handler;
             }
 
-            LilypondText = sb.ToString();
+            public abstract class FileOpener
+            {
+                public abstract void Open(string filename);
+            }
 
-            LoadLilypond(sb.ToString());
+            public FileOpener GetOpener(string fileName)
+            {
+                FileOpener opener;
+                string extension = Path.GetExtension(fileName);
+
+                if (extension.EndsWith(".mid"))
+                {
+                    opener = new MidiOpener(_handler);
+                }
+                else if (extension.EndsWith(".ly"))
+                {
+                    opener = new LilyOpener(_handler);
+                } else
+                {
+                    throw new Exception("Extension `" + Path.GetExtension(fileName) + "` is not supported");
+                }
+
+                return opener;
+            }
+
+            public class MidiOpener : FileOpener {
+                private FileHandler _handler;
+
+                public MidiOpener(FileHandler handler)
+                {
+                    _handler = handler;
+                }
+
+                public override void Open(string fileName)
+                {
+                    _handler.MidiSequence = new Sequence();
+                    _handler.MidiSequence.Load(fileName);
+                    _handler.MidiSequenceChanged?.Invoke(_handler, new MidiSequenceEventArgs() { MidiSequence = _handler.MidiSequence });
+                    _handler.midiLoader.LoadMidi(_handler.MidiSequence);
+                }
+            }
+
+            public class LilyOpener : FileOpener
+            {
+                private FileHandler _handler;
+
+                public LilyOpener(FileHandler handler)
+                {
+                    _handler = handler;
+                }
+
+                public override void Open(string fileName)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var line in File.ReadAllLines(fileName))
+                    {
+                        sb.AppendLine(line);
+                    }
+
+                    _handler.LilypondText = sb.ToString();
+
+                    _handler.LoadLilypond(sb.ToString());
+                }
+            }
         }
 
         public void LoadLilypond(string content)

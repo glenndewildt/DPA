@@ -108,6 +108,7 @@
     <Compile Include="Builders\MidiStaffBuilder.cs" />
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
+    <Compile Include="Managers\FileOpenerFactory.cs" />
     <Compile Include="Managers\MidiSequenceEventArgs.cs" />
     <Compile Include="Managers\WPFStaffsEventArgs.cs" />
     <Compile Include="Managers\LilypondEventArgs.cs" />
