@@ -8,6 +8,8 @@ namespace DPA_Musicsheets.Models
 {
     public class Measure : MusicalComposite
     {
+        public override string ComponentName => "Measure";
+
         public Tuple<int, int> timeSignature;
     }
 }
