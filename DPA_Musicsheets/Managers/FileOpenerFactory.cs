@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Managers
 {
-    public partial class FileOpenerFactory
+    public class FileOpenerFactory
     {
         private FileHandler _handler;
 
@@ -40,29 +40,6 @@ namespace DPA_Musicsheets.Managers
             }
 
             return opener;
-        }
-
-        public class LilyOpener : FileOpener
-        {
-            private FileHandler _handler;
-
-            public LilyOpener(FileHandler handler)
-            {
-                _handler = handler;
-            }
-
-            public override void Open(string fileName)
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (var line in File.ReadAllLines(fileName))
-                {
-                    sb.AppendLine(line);
-                }
-
-                _handler.LilypondText = sb.ToString();
-
-                _handler.LoadLilypond(sb.ToString());
-            }
         }
     }
 }
