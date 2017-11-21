@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DPA_Musicsheets.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,66 +7,54 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Builders
 {
-    class MidiStaffBuilder : IMidiLilyBuilder
+    class MidiStaffBuilder
     {
+        private Staff _staff = new Staff();
+
+        // reference to the last accessed measure
+        private Measure _lastMeasure;
+        // reference to the last accessed note
+        private Note _lastNote;
+
         public void AddBar()
         {
-            throw new NotImplementedException();
-        }
-
-        public void AddCustom(string wildcard)
-        {
-            throw new NotImplementedException();
+            Measure newMeasure = new Measure();
+            _staff.AddChild(newMeasure);
+            _lastMeasure = newMeasure;
         }
 
         public void AddDefaultConfiguration()
         {
-            throw new NotImplementedException();
+            Measure m = new Measure();
+            _staff.AddChild(m);
+            _lastMeasure = m;
         }
 
         public void AddNote(string note)
         {
-            throw new NotImplementedException();
+            Note n = new Note();
+            _lastMeasure.AddChild(n);
+            _lastNote = n;
         }
 
         public void AddNoteDuration(int duration, int amountOfDots)
         {
-            throw new NotImplementedException();
-        }
-
-        public void AddNoteLength(string noteLength)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddNoteSeparator()
-        {
-            throw new NotImplementedException();
+            _lastNote.duration = duration;
         }
 
         public void AddTempo(int bpm)
         {
-            throw new NotImplementedException();
+            _staff.bpm = bpm;
         }
 
         public void AddTimeSignature(int beatNote, int beatsPerBar)
         {
-            throw new NotImplementedException();
+            _staff.timeSignature = new Tuple<int, int>(beatNote, beatsPerBar);
         }
 
-        public string Build()
+        public Staff Build()
         {
-            throw new NotImplementedException();
-        }
-
-        public void CloseScope()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OpenScope()
-        {
-            throw new NotImplementedException();
+            return _staff;
         }
     }
 }

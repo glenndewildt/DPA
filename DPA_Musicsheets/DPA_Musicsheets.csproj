@@ -115,11 +115,12 @@
     <Compile Include="Managers\FileHandler.cs" />
     <Compile Include="Midi\MidiMeasureBuilder.cs" />
     <Compile Include="Midi\MidiNoteBuilder.cs" />
-    <Compile Include="Midi\MidiStaffBuilder.cs" />
     <Compile Include="Midi\MidiLoader.cs" />
     <Compile Include="Models\LilypondToken.cs" />
     <Compile Include="Models\LilypondTokenKind.cs" />
     <Compile Include="Models\Measure.cs" />
+    <Compile Include="Models\MusicalComponent.cs" />
+    <Compile Include="Models\MusicalComposite.cs" />
     <Compile Include="Models\Note.cs" />
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Lilypond\Tokenizer.cs" />

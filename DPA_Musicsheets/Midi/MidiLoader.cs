@@ -26,9 +26,19 @@ namespace DPA_Musicsheets.Midi
             midiStaffBuilder = new MidiStaffBuilder();
         }
 
+        /// <summary>
+        /// Should only be called after LoadMidi
+        /// </summary>
+        /// <returns></returns>
+        public Staff GetStaff()
+        {
+            return midiStaffBuilder.Build();
+        }
+
         public void LoadMidi(Sequence sequence)
         {
             lilyPondContent.AddDefaultConfiguration();
+            midiStaffBuilder.AddDefaultConfiguration();
 
             // This function is best seen as a midi/musical state machine
             // these 7 lines of code define the state of the machine
@@ -100,6 +110,7 @@ namespace DPA_Musicsheets.Midi
 
                     // build lily
                     lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
+                    midiStaffBuilder.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
 
                     // update local state
                     previousMidiKey = currentMidiKey;
@@ -114,6 +125,7 @@ namespace DPA_Musicsheets.Midi
                     Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
                     lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
+                    midiStaffBuilder.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
                     lilyPondContent.AddNoteSeparator();
 
                     // update local state
@@ -125,6 +137,7 @@ namespace DPA_Musicsheets.Midi
                     {
                         // build lily
                         lilyPondContent.AddBar();
+                        midiStaffBuilder.AddBar();
                         percentageOfBarReached -= 1;
                     }
                     startedNoteIsClosed = true;
@@ -133,6 +146,7 @@ namespace DPA_Musicsheets.Midi
                 {
                     // build lily
                     lilyPondContent.AddCustom("r");
+                    midiStaffBuilder.AddNoteDuration(0, 0);
                 }
             }
         }
@@ -149,6 +163,7 @@ namespace DPA_Musicsheets.Midi
                 Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
                 lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
+                midiStaffBuilder.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
                 lilyPondContent.AddNoteSeparator();
 
                 // stateful message parse
@@ -157,7 +172,7 @@ namespace DPA_Musicsheets.Midi
                 {
                     // build lily
                     lilyPondContent.AddBar();
-                    midiStaffBuilder.AddMeasure();
+                    midiStaffBuilder.AddBar();
                     percentageOfBar = percentageOfBar - 1;
                 }
             }
@@ -172,7 +187,7 @@ namespace DPA_Musicsheets.Midi
             int tempo = midiMessageInterpreter.Tempo(metaMessage);
 
             bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
-            midiStaffBuilder.SetBpm(bpm);
+            midiStaffBuilder.AddTempo(bpm);
 
             // build lily
             lilyPondContent.AddTempo(bpm);
@@ -186,9 +201,8 @@ namespace DPA_Musicsheets.Midi
             int beatNote = timeSignature.Item1;
             int beatsPerBar = timeSignature.Item2;
 
-            midiStaffBuilder.SetBeatNote(beatNote);
-            midiStaffBuilder.SetBeatsPerBar(beatsPerBar);
-
+            midiStaffBuilder.AddTimeSignature(beatNote, beatsPerBar);
+          
             // build lily
             lilyPondContent.AddTimeSignature(beatNote, beatsPerBar);
             return timeSignature;

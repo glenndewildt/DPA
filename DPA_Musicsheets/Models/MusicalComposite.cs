@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    public abstract class MusicalComposite
+    public class MusicalComposite : MusicalComponent
     {
-        public abstract void AddChild(MusicalComposite m);
-        public abstract void RemoveChild(MusicalComposite m);
+        protected LinkedList<MusicalComponent> _children = new LinkedList<MusicalComponent>();
+
+        public override void AddChild(MusicalComponent m)
+        {
+            _children.AddLast(m);
+        }
     }
 }
