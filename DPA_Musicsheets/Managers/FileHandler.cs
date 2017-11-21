@@ -61,20 +61,25 @@ namespace DPA_Musicsheets.Managers
             }
             else if (Path.GetExtension(fileName).EndsWith(".ly"))
             {
-                StringBuilder sb = new StringBuilder();
-                foreach (var line in File.ReadAllLines(fileName))
-                {
-                    sb.AppendLine(line);
-                }
-
-                LilypondText = sb.ToString();
-
-                LoadLilypond(sb.ToString());
+                OpenLily(fileName);
             }
             else
             {
                 throw new NotSupportedException($"File extension {Path.GetExtension(fileName)} is not supported.");
             }
+        }
+
+        private void OpenLily(string fileName)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var line in File.ReadAllLines(fileName))
+            {
+                sb.AppendLine(line);
+            }
+
+            LilypondText = sb.ToString();
+
+            LoadLilypond(sb.ToString());
         }
 
         public void LoadLilypond(string content)
