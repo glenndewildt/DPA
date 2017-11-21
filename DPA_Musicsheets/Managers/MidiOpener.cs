@@ -2,7 +2,7 @@
 
 namespace DPA_Musicsheets.Managers
 {
-    public class MidiOpener : FileOpenerFactory.FileOpener
+    public class MidiOpener : AbstractFileOpener
     {
         private FileHandler _handler;
 

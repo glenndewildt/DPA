@@ -48,7 +48,7 @@ namespace DPA_Musicsheets.Managers
         public void OpenFile(string fileName)
         {
             FileOpenerFactory f = new FileOpenerFactory(this);
-            FileOpenerFactory.FileOpener opener = f.GetOpener(fileName);
+            AbstractFileOpener opener = f.GetOpener(fileName);
             opener.Open(fileName);
         }
 

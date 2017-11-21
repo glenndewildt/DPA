@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Managers
 {
-    public class LilyOpener : FileOpenerFactory.FileOpener
+    public class LilyOpener : AbstractFileOpener
     {
         private FileHandler _handler;
 

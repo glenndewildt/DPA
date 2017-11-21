@@ -16,14 +16,9 @@ namespace DPA_Musicsheets.Managers
             _handler = handler;
         }
 
-        public abstract class FileOpener
+        public AbstractFileOpener GetOpener(string fileName)
         {
-            public abstract void Open(string filename);
-        }
-
-        public FileOpener GetOpener(string fileName)
-        {
-            FileOpener opener;
+            AbstractFileOpener opener;
             string extension = Path.GetExtension(fileName);
 
             if (extension.EndsWith(".mid"))
