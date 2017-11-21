@@ -45,14 +45,19 @@ namespace DPA_Musicsheets.Managers
             midiLoader = new MidiLoader(this);
         }
 
+        private void OpenMidi(string fileName)
+        {
+            MidiSequence = new Sequence();
+            MidiSequence.Load(fileName);
+            MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
+            midiLoader.LoadMidi(MidiSequence);
+        }
+
         public void OpenFile(string fileName)
         {
             if (Path.GetExtension(fileName).EndsWith(".mid"))
             {
-                MidiSequence = new Sequence();
-                MidiSequence.Load(fileName);
-                MidiSequenceChanged?.Invoke(this, new MidiSequenceEventArgs() { MidiSequence = MidiSequence });
-                midiLoader.LoadMidi(MidiSequence);
+                OpenMidi(fileName);
             }
             else if (Path.GetExtension(fileName).EndsWith(".ly"))
             {
