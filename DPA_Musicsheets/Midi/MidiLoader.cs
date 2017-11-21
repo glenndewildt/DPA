@@ -188,8 +188,6 @@ namespace DPA_Musicsheets.Midi
 
             bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
             midiStaffBuilder.AddTempo(bpm);
-
-            // build lily
             lilyPondContent.AddTempo(bpm);
             return bpm;
         }
@@ -202,8 +200,6 @@ namespace DPA_Musicsheets.Midi
             int beatsPerBar = timeSignature.Item2;
 
             midiStaffBuilder.AddTimeSignature(beatNote, beatsPerBar);
-          
-            // build lily
             lilyPondContent.AddTimeSignature(beatNote, beatsPerBar);
             return timeSignature;
         }
