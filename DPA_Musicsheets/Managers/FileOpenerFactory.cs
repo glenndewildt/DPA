@@ -1,5 +1,4 @@
-﻿using Sanford.Multimedia.Midi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Managers
 {
-    public class FileOpenerFactory
+    public partial class FileOpenerFactory
     {
         private FileHandler _handler;
 
@@ -41,23 +40,6 @@ namespace DPA_Musicsheets.Managers
             }
 
             return opener;
-        }
-
-        public class MidiOpener : FileOpener
-        {
-            private FileHandler _handler;
-
-            public MidiOpener(FileHandler handler)
-            {
-                _handler = handler;
-            }
-
-            public override void Open(string fileName)
-            {
-                _handler.MidiSequence = new Sequence();
-                _handler.MidiSequence.Load(fileName);
-                _handler.HandleMidiOpen();
-            }
         }
 
         public class LilyOpener : FileOpener
