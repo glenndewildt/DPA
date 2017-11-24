@@ -17,6 +17,8 @@ namespace DPA_Musicsheets.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        private keycommands.KeyListener keyHandler = new keycommands.KeyListener();
+
         private string _fileName;
         public string FileName
         {
@@ -68,11 +70,13 @@ namespace DPA_Musicsheets.ViewModels
 
         public ICommand OnKeyDownCommand => new RelayCommand<KeyEventArgs>((e) =>
         {
+            keyHandler.KeyDown(e);
             Console.WriteLine($"Key down: {e.Key}");
         });
 
-        public ICommand OnKeyUpCommand => new RelayCommand(() =>
+        public ICommand OnKeyUpCommand => new RelayCommand<KeyEventArgs>((e) =>
         {
+            keyHandler.KeyUp(e);
             Console.WriteLine("Key Up");
         });
 

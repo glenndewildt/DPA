@@ -107,6 +107,8 @@
     <Compile Include="Builders\MidiLilyBuilder.cs" />
     <Compile Include="Builders\MidiStaffBuilder.cs" />
     <Compile Include="GlobalConstants.cs" />
+    <Compile Include="Keycommands\KeyListener.cs" />
+    <Compile Include="Keycommands\mb_ICommand.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
     <Compile Include="Managers\AbstractFileOpener.cs" />
     <Compile Include="Managers\FileOpenerFactory.cs" />
