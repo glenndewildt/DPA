@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DPA_Musicsheets.Keycommands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,8 +32,11 @@ namespace DPA_Musicsheets.keycommands
 
         private System.Windows.Forms.Timer timer;
 
+        private ChainOfCommand sequenceHandlers;
+
         public KeyListener()
         {
+            sequenceHandlers = new ChainOfCommand();
             ResetTimer();
         }
 
@@ -63,7 +67,7 @@ namespace DPA_Musicsheets.keycommands
             // do(currentKeySequence);
             if (currentKeySequence.Count() >= MIN_SEQUENCE_LENGTH)
             {
-                LogKeysequence();
+                sequenceHandlers.Handle(currentKeySequence);
             }
 
             // clean up
