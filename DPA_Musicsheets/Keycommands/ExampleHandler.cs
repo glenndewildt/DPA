@@ -12,16 +12,15 @@ namespace DPA_Musicsheets.Keycommands
     {
         private ICommand_mb exampleCommand = new ExampleCommand();
 
-        public override void Handle(List<Key> keySequence)
+        public override void Handle(KeySequence keys)
         {
             Console.Out.WriteLine("Handling with example handler");
-            if (keySequence[0] == Key.LeftCtrl &&
-                keySequence[1] == Key.S)
+            if (keys.Equals(KeysequenceDefinitions.CTRLS))
             {
                 exampleCommand.Execute();
             } else
             {
-                NextHandler().Handle(keySequence);
+                NextHandler().Handle(keys);
             }
         }
     }

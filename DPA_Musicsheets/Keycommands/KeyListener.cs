@@ -67,7 +67,8 @@ namespace DPA_Musicsheets.keycommands
             // do(currentKeySequence);
             if (currentKeySequence.Count() >= MIN_SEQUENCE_LENGTH)
             {
-                sequenceHandlers.Handle(currentKeySequence);
+                KeySequence seq = new KeySequence("generated sequence", currentKeySequence);
+                sequenceHandlers.Handle(seq);
             }
 
             // clean up
@@ -99,26 +100,6 @@ namespace DPA_Musicsheets.keycommands
         internal void KeyUp(KeyEventArgs e)
         {
             // just ignore these events
-        }
-
-        /// <summary>
-        /// for debugging purposes.
-        /// </summary>
-        private void LogKeysequence()
-        {
-            Key key;
-
-            StringBuilder s = new StringBuilder();
-            s.Append("Key sequence: ");
-            for (int i = 0; i < currentKeySequence.Count() - 1; i++)
-            {
-                key = currentKeySequence[i];
-                s.Append(key.ToString());
-                s.Append(" + ");
-            }
-            key = currentKeySequence.Last();
-            s.Append(key.ToString());
-            Console.Out.WriteLine(s);
         }
     }
 }

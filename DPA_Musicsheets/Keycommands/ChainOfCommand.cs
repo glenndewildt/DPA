@@ -18,11 +18,11 @@ namespace DPA_Musicsheets.Keycommands
             handlers.Add(exampleHandler);
         }
 
-        public void Handle(List<Key> keySequence)
+        public void Handle(KeySequence keys)
         {
             try
             {
-                handlers.First().Handle(keySequence);
+                handlers.First().Handle(keys);
             }
             catch (Exception)
             {

@@ -18,6 +18,6 @@ namespace DPA_Musicsheets.Keycommands
             }
         }
 
-        public abstract void Handle(List<Key> keySequence);
+        public abstract void Handle(KeySequence keys);
     }
 }
