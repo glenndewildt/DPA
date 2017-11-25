@@ -1,11 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using DPA_Musicsheets.Commands;
+using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace DPA_Musicsheets.Keycommands
 {
-    public abstract class CoCHandler
+    public class CoCHandler
     {
         public CoCHandler Successor { get; set; }
+        private KeySequence _keySeq;
+        private ICommand_mb _command;
+
+        public CoCHandler(KeySequence keySeq, ICommand_mb command)
+        {
+            _keySeq = keySeq;
+            _command = command;
+        }
 
         protected CoCHandler NextHandler()
         {
@@ -18,6 +27,16 @@ namespace DPA_Musicsheets.Keycommands
             }
         }
 
-        public abstract void Handle(KeySequence keys);
+        public void Handle(KeySequence keys)
+        {
+            if (keys.Equals(_keySeq))
+            {
+                _command.Execute();
+            }
+            else
+            {
+                NextHandler().Handle(keys);
+            }
+        }
     }
 }

@@ -111,7 +111,7 @@
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Keycommands\ChainOfCommand.cs" />
     <Compile Include="Keycommands\CoCHandler.cs" />
-    <Compile Include="Keycommands\ExampleHandler.cs" />
+    <Compile Include="Keycommands\HandlerDefinitions.cs" />
     <Compile Include="Keycommands\KeyListener.cs" />
     <Compile Include="Commands\ICommand_mb.cs" />
     <Compile Include="Keycommands\KeySequence.cs" />

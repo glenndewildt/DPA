@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Commands
 {
-    interface ICommand_mb
+    public interface ICommand_mb
     {
         void Execute();
     }

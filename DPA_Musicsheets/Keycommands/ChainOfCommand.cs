@@ -14,8 +14,7 @@ namespace DPA_Musicsheets.Keycommands
         public ChainOfCommand()
         {
             // define list of handlers
-            CoCHandler exampleHandler = new ExampleHandler();
-            handlers.Add(exampleHandler);
+            handlers.Add(HandlerDefinitions.ExampleHandler);
         }
 
         public void Handle(KeySequence keys)
