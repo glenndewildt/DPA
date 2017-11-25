@@ -9,6 +9,6 @@ namespace DPA_Musicsheets.Keycommands
 {
     class HandlerDefinitions
     {
-        public static CoCHandler ExampleHandler = new CoCHandler(KeysequenceDefinitions.CTRLS, new ExampleCommand());
+        public static CoCHandler ExampleHandler = new CoCHandler(KeysequenceDefinitions.CTRL_S, new ExampleCommand());
     }
 }
