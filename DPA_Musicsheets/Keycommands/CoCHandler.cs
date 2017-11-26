@@ -16,26 +16,23 @@ namespace DPA_Musicsheets.Keycommands
             _command = command;
         }
 
-        protected CoCHandler NextHandler()
-        {
-            if (Successor == null)
-            {
-                throw new System.Exception("No handler specified");
-            } else
-            {
-                return Successor;
-            }
-        }
-
-        public void Handle(KeySequence keys)
+        public bool Handle(KeySequence keys)
         {
             if (keys.Equals(_keySeq))
             {
                 _command.Execute();
+                return true;
             }
             else
             {
-                NextHandler().Handle(keys);
+                if (Successor != null)
+                {
+                    return Successor.Handle(keys);
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
     }

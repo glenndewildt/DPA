@@ -34,6 +34,9 @@ namespace DPA_Musicsheets.Keycommands
                         return false;
                     }
                 }
+            } else
+            {
+                return false;
             }
 
             return true;

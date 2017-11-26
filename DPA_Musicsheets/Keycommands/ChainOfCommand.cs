@@ -19,13 +19,15 @@ namespace DPA_Musicsheets.Keycommands
 
         public void Handle(KeySequence keys)
         {
-            try
+            bool sequenceIsHandled = false;
+            sequenceIsHandled = handlers.First().Handle(keys);
+
+            if (!sequenceIsHandled)
             {
-                handlers.First().Handle(keys);
-            }
-            catch (Exception)
+                Console.Out.WriteLine($"The sequence {keys} was not handled by any listeners");
+            } else
             {
-                Console.Out.WriteLine("CoCHandler exception");
+                Console.Out.WriteLine($"The sequence {keys} was handled.");
             }
         }
     }
