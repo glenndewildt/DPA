@@ -110,7 +110,7 @@
     <Compile Include="Commands\ExampleCommand.cs" />
     <Compile Include="Commands\SaveAsLilyCommand.cs" />
     <Compile Include="GlobalConstants.cs" />
-    <Compile Include="Keycommands\ChainOfCommand.cs" />
+    <Compile Include="Keycommands\ChainOfResponsibility.cs" />
     <Compile Include="Keycommands\CoCHandler.cs" />
     <Compile Include="Keycommands\KeyListener.cs" />
     <Compile Include="Commands\ICommand_mb.cs" />

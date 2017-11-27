@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace DPA_Musicsheets.Keycommands
 {
-    class ChainOfCommand
+    class ChainOfResponsibility
     {
         private List<CoCHandler> handlers = new List<CoCHandler>();
 

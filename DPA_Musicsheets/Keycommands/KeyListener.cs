@@ -32,7 +32,7 @@ namespace DPA_Musicsheets.keycommands
 
         private System.Windows.Forms.Timer timer;
 
-        private ChainOfCommand sequenceHandler = new ChainOfCommand();
+        private ChainOfResponsibility sequenceHandler = new ChainOfResponsibility();
 
         public KeyListener()
         {
