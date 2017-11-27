@@ -13,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DPA_Musicsheets.Commands;
+using DPA_Musicsheets.Keycommands;
 
 namespace DPA_Musicsheets.Managers
 {
@@ -40,9 +42,12 @@ namespace DPA_Musicsheets.Managers
 
         private MidiLoader midiLoader;
 
+        private ChainOfCommand commands;
+
         public FileHandler()
         {
             midiLoader = new MidiLoader(this);
+            commands = new ChainOfCommand();
         }
 
         public void OpenFile(string fileName)

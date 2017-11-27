@@ -25,18 +25,17 @@ namespace DPA_Musicsheets.keycommands
 
         // automatically fire if a key sequence becomes of length 4
         const int MAX_SEQUENCE_LENGTH = 4;
-        // "Z", "Ctrl", "Alt" etc aren't sequences, they're keys.
+        // {Keys.Z}, {Keys.LeftCtrl}, {Keys.Alt} etc aren't sequences, they're keys.
         const int MIN_SEQUENCE_LENGTH = 2;
 
         List<Key> currentKeySequence = new List<Key>();
 
         private System.Windows.Forms.Timer timer;
 
-        private ChainOfCommand sequenceHandlers;
+        private ChainOfCommand sequenceHandler = new ChainOfCommand();
 
         public KeyListener()
         {
-            sequenceHandlers = new ChainOfCommand();
             ResetTimer();
         }
 
@@ -68,7 +67,7 @@ namespace DPA_Musicsheets.keycommands
             if (currentKeySequence.Count() >= MIN_SEQUENCE_LENGTH)
             {
                 KeySequence seq = new KeySequence("generated sequence", currentKeySequence);
-                sequenceHandlers.Handle(seq);
+                sequenceHandler.Handle(seq);
             }
 
             // clean up

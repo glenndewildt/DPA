@@ -9,13 +9,7 @@ namespace DPA_Musicsheets.Keycommands
 {
     class ChainOfCommand
     {
-        List<CoCHandler> handlers = new List<CoCHandler>();
-
-        public ChainOfCommand()
-        {
-            // define list of handlers
-            handlers.Add(HandlerDefinitions.ExampleHandler);
-        }
+        private List<CoCHandler> handlers = new List<CoCHandler>();
 
         public void Handle(KeySequence keys)
         {
@@ -29,6 +23,11 @@ namespace DPA_Musicsheets.Keycommands
             {
                 Console.Out.WriteLine($"The sequence {keys} was handled.");
             }
+        }
+
+        public void RegisterHandler(CoCHandler handler)
+        {
+            handlers.Add(handler);
         }
     }
 }

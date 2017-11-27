@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Commands
 {
-    public interface ICommand_mb
+    class SaveAslilyCommand
     {
-        // the idea of an optional parameter is taken from the
-        // actual ICommand interface.
-        void Execute();
     }
 }
