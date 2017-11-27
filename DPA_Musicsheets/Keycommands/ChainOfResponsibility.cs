@@ -9,7 +9,7 @@ namespace DPA_Musicsheets.Keycommands
 {
     class ChainOfResponsibility
     {
-        private List<CoCHandler> handlers = new List<CoCHandler>();
+        private List<HotkeyHandler> handlers = new List<HotkeyHandler>();
 
         public void Handle(KeySequence keys)
         {
@@ -25,7 +25,7 @@ namespace DPA_Musicsheets.Keycommands
             }
         }
 
-        public void RegisterHandler(CoCHandler handler)
+        private void RegisterHandler(HotkeyHandler handler)
         {
             handlers.Add(handler);
         }

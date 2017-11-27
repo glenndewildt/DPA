@@ -4,13 +4,13 @@ using System.Windows.Input;
 
 namespace DPA_Musicsheets.Keycommands
 {
-    public class CoCHandler
+    public class HotkeyHandler
     {
-        public CoCHandler Successor { get; set; }
+        public HotkeyHandler Successor { get; set; }
         private KeySequence _keySeq;
         private ICommand_mb _command;
 
-        public CoCHandler(KeySequence keySeq, ICommand_mb command)
+        public HotkeyHandler(KeySequence keySeq, ICommand_mb command)
         {
             _keySeq = keySeq;
             _command = command;
