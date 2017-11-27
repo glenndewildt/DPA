@@ -21,9 +21,6 @@ namespace DPA_Musicsheets.Midi
         public MidiLoader(FileHandler fileHandler)
         {
             this.fileHandler = fileHandler;
-
-            lilyPondContent = new MidiLilyBuilder();
-            midiStaffBuilder = new MidiStaffBuilder();
         }
 
         /// <summary>
@@ -37,6 +34,9 @@ namespace DPA_Musicsheets.Midi
 
         public void LoadMidi(Sequence sequence)
         {
+            lilyPondContent = new MidiLilyBuilder();
+            midiStaffBuilder = new MidiStaffBuilder();
+
             lilyPondContent.AddDefaultConfiguration();
             midiStaffBuilder.AddDefaultConfiguration();
 
