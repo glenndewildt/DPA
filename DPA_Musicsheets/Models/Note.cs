@@ -10,6 +10,7 @@ namespace DPA_Musicsheets.Models
     {
         public int duration;
         public int pitch;
+        public string name;
 
         public override string ComponentName => "Note";
 

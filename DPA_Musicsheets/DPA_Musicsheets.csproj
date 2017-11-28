@@ -111,12 +111,13 @@
     <Compile Include="Commands\SaveAsLilyCommand.cs" />
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Keycommands\ChainOfResponsibility.cs" />
-    <Compile Include="Keycommands\CoCHandler.cs" />
+    <Compile Include="Keycommands\HotkeyHandler.cs" />
     <Compile Include="Keycommands\KeyListener.cs" />
     <Compile Include="Commands\ICommand_mb.cs" />
     <Compile Include="Keycommands\KeySequence.cs" />
     <Compile Include="Keycommands\KeysequenceDefinitions.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
+    <Compile Include="Lilypond\StaffToLilyConverter.cs" />
     <Compile Include="Managers\AbstractFileOpener.cs" />
     <Compile Include="Managers\FileOpenerFactory.cs" />
     <Compile Include="Managers\LilyOpener.cs" />

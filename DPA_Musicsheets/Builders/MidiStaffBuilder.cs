@@ -33,6 +33,7 @@ namespace DPA_Musicsheets.Builders
         public void AddNote(string note)
         {
             Note n = new Note();
+            n.name = note;
             _lastMeasure.AddChild(n);
             _lastNote = n;
         }

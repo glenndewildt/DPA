@@ -4,6 +4,7 @@ using DPA_Musicsheets.Models;
 using Sanford.Multimedia.Midi;
 using DPA_Musicsheets.Midi;
 using DPA_Musicsheets.Managers;
+using DPA_Musicsheets.Lilypond;
 
 namespace Tests
 {
@@ -18,7 +19,7 @@ namespace Tests
 \time 4 / 4
 \tempo 4 = 120
 g'4 g4 a4 a4 |
-d8.e16 d8 c8 b4 d4 |
+d8. e16 d8 c8 b4 d4 |
 g8 a8 b8 g8 a8 d,8 d'4 |
 g,2 g,2 |
 g4 a4 a4 |
@@ -40,17 +41,17 @@ g8 b8 d8 b8 g2 |
 g8 b8 d8 fis8 g2 |
 32 }";
 
-            StaffToLilyConverter staffToLilyConverter = new StaffToLilyConverter();
-
             Sequence MidiSequence = new Sequence();
             MidiSequence.Load("Files\\Alle-eendjes-zwemmen-in-het-water.mid");
 
             FileHandler handler = new FileHandler();
 
-            MidiLoader midiGod = new MidiLoader(handler);
-            midiGod.LoadMidi(MidiSequence);
+            MidiLoader midiLoader = new MidiLoader(handler);
+            midiLoader.LoadMidi(MidiSequence);
 
-            string actualResult = staffToLilyConverter.Convert(handler.staff);
+            StaffToLilyConverter lilyConverter = new StaffToLilyConverter();
+
+            string actualResult = lilyConverter.Convert(midiLoader.GetStaff());
 
             Assert.AreEqual(actualResult, expectedResult);
         }

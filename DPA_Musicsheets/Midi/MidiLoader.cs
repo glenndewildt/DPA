@@ -93,6 +93,7 @@ namespace DPA_Musicsheets.Midi
             Staff staff = midiStaffBuilder.Build();
 
             fileHandler.staff = staff;
+            Console.Out.WriteLine(lilyPondContent.Build());
             fileHandler.LoadLilypond(lilyPondContent.Build());
         }
 
