@@ -123,6 +123,8 @@ namespace DPA_Musicsheets.Midi
                     double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
                     Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
+                    Console.Out.WriteLine(durationAndDots.Item1);
+
                     midiStaffBuilder.AddNoteDuration(durationAndDots.Item1);
                     midiStaffBuilder.AddDots(durationAndDots.Item2);
 
@@ -147,21 +149,13 @@ namespace DPA_Musicsheets.Midi
         {
             if (previousNoteAbsoluteTicks > 0)
             {
-                // Finish the last notelength.
-                // adapt to lilybuilder interface
                 int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
 
                 double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
-                Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
-                midiStaffBuilder.AddNoteDuration(durationAndDots.Item1);
-                midiStaffBuilder.AddDots(durationAndDots.Item2);
-
-                // stateful message parse
                 percentageOfBarReached += percentageOfBar;
                 if (percentageOfBarReached >= 1)
                 {
-                    // build lily
                     midiStaffBuilder.AddBar();
                     percentageOfBar = percentageOfBar - 1;
                 }
@@ -173,7 +167,6 @@ namespace DPA_Musicsheets.Midi
         private int ParseTempo(MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
         {
             int bpm;
-            // parse the message
             int tempo = midiMessageInterpreter.Tempo(metaMessage);
 
             bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
@@ -183,7 +176,6 @@ namespace DPA_Musicsheets.Midi
 
         private Tuple<int, int> ParseTimeSignature(MidiStaffBuilder midiStaffBuilder, MetaMessage metaMessage)
         {
-            // parse the message
             Tuple<int, int> timeSignature = midiMessageInterpreter.TimeSignature(metaMessage);
             int beatNote = timeSignature.Item1;
             int beatsPerBar = timeSignature.Item2;
@@ -192,7 +184,6 @@ namespace DPA_Musicsheets.Midi
             return timeSignature;
         }
 
-        // technically, this should be part of the MidiLilyBuilder, since it takes in midi stuff and outputs partial lily sourcecode
         private Tuple<int, int> GetNoteLength(int division, int beatNote, int beatsPerBar, double percentageOfBar)
         {
             int duration = 0;
