@@ -1,4 +1,5 @@
 ﻿using DPA_Musicsheets.Builders;
+using DPA_Musicsheets.Lilypond;
 using DPA_Musicsheets.Managers;
 using DPA_Musicsheets.Models;
 using Sanford.Multimedia.Midi;
@@ -15,7 +16,6 @@ namespace DPA_Musicsheets.Midi
         private FileHandler fileHandler;
         private MidiMessageInterpreter midiMessageInterpreter = new MidiMessageInterpreter();
 
-        private MidiLilyBuilder lilyPondContent;
         private MidiStaffBuilder midiStaffBuilder;
 
         public MidiLoader(FileHandler fileHandler)
@@ -34,10 +34,8 @@ namespace DPA_Musicsheets.Midi
 
         public void LoadMidi(Sequence sequence)
         {
-            lilyPondContent = new MidiLilyBuilder();
             midiStaffBuilder = new MidiStaffBuilder();
 
-            lilyPondContent.AddDefaultConfiguration();
             midiStaffBuilder.AddDefaultConfiguration();
 
             // This function is best seen as a midi/musical state machine
@@ -88,13 +86,13 @@ namespace DPA_Musicsheets.Midi
                 }
             }
 
-            lilyPondContent.CloseScope();
 
             Staff staff = midiStaffBuilder.Build();
 
+            StaffToLilyConverter toLily = new StaffToLilyConverter();
+
             fileHandler.staff = staff;
-            Console.Out.WriteLine(lilyPondContent.Build());
-            fileHandler.LoadLilypond(lilyPondContent.Build());
+            fileHandler.LoadLilypond(toLily.Convert(staff));
         }
 
         private void ParseChannel(int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)
@@ -102,42 +100,37 @@ namespace DPA_Musicsheets.Midi
             var channelMessage = midiEvent.MidiMessage as ChannelMessage;
             if (channelMessage.Command == ChannelCommand.NoteOn)
             {
-                // parse the message
                 int loudness = midiMessageInterpreter.Loudness(channelMessage);
                 if (loudness > 0)
                 {
-                    // Append the new note.
                     int currentMidiKey = midiMessageInterpreter.Key(channelMessage);
 
-                    // build lily
-                    lilyPondContent.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
-                    midiStaffBuilder.AddNote(GetNoteName(previousMidiKey, currentMidiKey));
+                    string noteName = GetNoteName(previousMidiKey, currentMidiKey);
+                    int numberOfApostrophes = CalculateAmountOfApostrophes(previousMidiKey, currentMidiKey);
+                    int numberOfCommas = CalculateAmountOfCommas(previousMidiKey, currentMidiKey);
 
-                    // update local state
+                    midiStaffBuilder.AddNote(noteName);
+                    midiStaffBuilder.AddApostrophes(numberOfApostrophes);
+                    midiStaffBuilder.AddCommas(numberOfCommas);
+
                     previousMidiKey = currentMidiKey;
                     startedNoteIsClosed = false;
                 }
                 else if (!startedNoteIsClosed)
                 {
-                    // parse the message
                     int currentAbsoluteTicks = midiMessageInterpreter.AbsoluteTicks(midiEvent);
 
                     double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
                     Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
-                    lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
-                    midiStaffBuilder.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
-                    lilyPondContent.AddNoteSeparator();
+                    midiStaffBuilder.AddNoteDuration(durationAndDots.Item1);
+                    midiStaffBuilder.AddDots(durationAndDots.Item2);
 
-                    // update local state
                     previousNoteAbsoluteTicks = currentAbsoluteTicks;
 
-                    // update local state
                     percentageOfBarReached += percentageOfBar;
                     if (percentageOfBarReached >= 1)
                     {
-                        // build lily
-                        lilyPondContent.AddBar();
                         midiStaffBuilder.AddBar();
                         percentageOfBarReached -= 1;
                     }
@@ -145,9 +138,7 @@ namespace DPA_Musicsheets.Midi
                 }
                 else
                 {
-                    // build lily
-                    lilyPondContent.AddCustom("r");
-                    midiStaffBuilder.AddNoteDuration(0, 0);
+                    midiStaffBuilder.AddNoteDuration(0);
                 }
             }
         }
@@ -163,16 +154,14 @@ namespace DPA_Musicsheets.Midi
                 double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
                 Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
 
-                lilyPondContent.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
-                midiStaffBuilder.AddNoteDuration(durationAndDots.Item1, durationAndDots.Item2);
-                lilyPondContent.AddNoteSeparator();
+                midiStaffBuilder.AddNoteDuration(durationAndDots.Item1);
+                midiStaffBuilder.AddDots(durationAndDots.Item2);
 
                 // stateful message parse
                 percentageOfBarReached += percentageOfBar;
                 if (percentageOfBarReached >= 1)
                 {
                     // build lily
-                    lilyPondContent.AddBar();
                     midiStaffBuilder.AddBar();
                     percentageOfBar = percentageOfBar - 1;
                 }
@@ -189,7 +178,6 @@ namespace DPA_Musicsheets.Midi
 
             bpm = DPA_GLOBAL_CONSTANTS.MINUTE_IN_MICROSECONDS / tempo;
             midiStaffBuilder.AddTempo(bpm);
-            lilyPondContent.AddTempo(bpm);
             return bpm;
         }
 
@@ -201,7 +189,6 @@ namespace DPA_Musicsheets.Midi
             int beatsPerBar = timeSignature.Item2;
 
             midiStaffBuilder.AddTimeSignature(beatNote, beatsPerBar);
-            lilyPondContent.AddTimeSignature(beatNote, beatsPerBar);
             return timeSignature;
         }
 
@@ -306,27 +293,39 @@ namespace DPA_Musicsheets.Midi
             return dots;
         }
 
+        private int CalculateAmountOfCommas(int previousMidiKey, int midiKey)
+        {
+            int distance = midiKey - previousMidiKey;
+            int amount = 0;
+
+            while (distance < -6)
+            {
+                amount += 1;
+                distance += 8;
+            }
+
+            return amount;
+        }
+
+        private int CalculateAmountOfApostrophes(int previousMidiKey, int midiKey)
+        {
+            int distance = midiKey - previousMidiKey;
+            int amount = 0;
+
+            while (distance > 6)
+            {
+                amount += 1;
+                distance -= 8;
+            }
+
+            return amount;
+        }
+
         private string GetNoteName(int previousMidiKey, int midiKey)
         {
             List<string> notes = new List<string> { "c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "ais", "b" };
 
-            int octave = (midiKey / 12) - 1;
-            string name = notes[midiKey % 12];
-
-            int distance = midiKey - previousMidiKey;
-            while (distance < -6)
-            {
-                name += ",";
-                distance += 8;
-            }
-
-            while (distance > 6)
-            {
-                name += "'";
-                distance -= 8;
-            }
-
-            return name;
+            return notes[midiKey % 12];
         }
     }
 }

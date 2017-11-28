@@ -104,8 +104,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Builders\IMidiLilyBuilder.cs" />
-    <Compile Include="Builders\MidiLilyBuilder.cs" />
     <Compile Include="Builders\MidiStaffBuilder.cs" />
     <Compile Include="Commands\ExampleCommand.cs" />
     <Compile Include="Commands\SaveAsLilyCommand.cs" />
@@ -116,6 +114,7 @@
     <Compile Include="Commands\ICommand_mb.cs" />
     <Compile Include="Keycommands\KeySequence.cs" />
     <Compile Include="Keycommands\KeysequenceDefinitions.cs" />
+    <Compile Include="Lilypond\LilyNoteInformation.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
     <Compile Include="Lilypond\StaffToLilyConverter.cs" />
     <Compile Include="Managers\AbstractFileOpener.cs" />
@@ -134,6 +133,7 @@
     <Compile Include="Models\LilypondTokenKind.cs" />
     <Compile Include="Models\Measure.cs" />
     <Compile Include="Models\MusicalComponent.cs" />
+    <Compile Include="Models\MusicalComponentExtension.cs" />
     <Compile Include="Models\MusicalComposite.cs" />
     <Compile Include="Models\Note.cs" />
     <Compile Include="Models\Staff.cs" />

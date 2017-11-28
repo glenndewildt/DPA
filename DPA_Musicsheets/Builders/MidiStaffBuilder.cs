@@ -1,4 +1,5 @@
-﻿using DPA_Musicsheets.Models;
+﻿using DPA_Musicsheets.Lilypond;
+using DPA_Musicsheets.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,13 +35,32 @@ namespace DPA_Musicsheets.Builders
         {
             Note n = new Note();
             n.name = note;
+            n.AddExtension(new LilyNoteInformation());
             _lastMeasure.AddChild(n);
             _lastNote = n;
         }
 
-        public void AddNoteDuration(int duration, int amountOfDots)
+        public void AddNoteDuration(int duration)
         {
             _lastNote.duration = duration;
+        }
+
+        public void AddDots(int amountOfDots)
+        {
+            LilyNoteInformation lily = (LilyNoteInformation)_lastNote.GetExtensionByName("LilyNoteInformation");
+            lily.amountOfDots = amountOfDots;
+        }
+
+        public void AddApostrophes(int numberOfApostrophes)
+        {
+            LilyNoteInformation lily = (LilyNoteInformation)_lastNote.GetExtensionByName("LilyNoteInformation");
+            lily.amountOfApostrophes = numberOfApostrophes;
+        }
+
+        public void AddCommas(int numberOfCommas)
+        {
+            LilyNoteInformation lily = (LilyNoteInformation)_lastNote.GetExtensionByName("LilyNoteInformation");
+            lily.amountOfCommas = numberOfCommas;
         }
 
         public void AddTempo(int bpm)

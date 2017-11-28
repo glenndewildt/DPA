@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Models
 {
-    public class Note : MusicalComponent
+    public class Note : MusicalComposite
     {
         public int duration;
         public int pitch;

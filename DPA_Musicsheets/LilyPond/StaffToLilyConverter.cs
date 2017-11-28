@@ -43,10 +43,17 @@ namespace DPA_Musicsheets.Lilypond
 
         private void _ConvertNote(Note note)
         {
-            if (note.name != null)
-            {
-                LilyString.Append($"{note.name}{note.duration} ");
-            }
+            LilyNoteInformation lily = (LilyNoteInformation) note.GetExtensionByName("LilyNoteInformation");
+            StringBuilder noteString = new StringBuilder();
+
+            noteString.Append(note.name);
+            noteString.Append(new string(',', lily.amountOfCommas));
+            noteString.Append(new string('\'', lily.amountOfApostrophes));
+            noteString.Append(note.duration);
+            noteString.Append(new string('.', lily.amountOfDots));
+            noteString.Append(" ");
+
+            LilyString.Append(noteString);
         }
 
         private void _ConvertMeasure(Measure measure)
@@ -76,7 +83,7 @@ namespace DPA_Musicsheets.Lilypond
                 _Convert(mcChild);
             }
 
-            LilyString.AppendLine("32 }");
+            LilyString.AppendLine("}");
         }
     }
 }

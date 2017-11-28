@@ -19,5 +19,7 @@ namespace DPA_Musicsheets.Models
         public abstract string ComponentName { get; }
 
         public abstract void AddChild(MusicalComponent m);
+        public abstract void AddExtension(MusicalComponentExtension mce);
+        public abstract MusicalComponentExtension GetExtensionByName(string name);
     }
 }
