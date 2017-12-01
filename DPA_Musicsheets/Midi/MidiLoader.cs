@@ -86,7 +86,6 @@ namespace DPA_Musicsheets.Midi
                 }
             }
 
-
             Staff staff = midiStaffBuilder.Build();
 
             StaffToLilyConverter toLily = new StaffToLilyConverter();
@@ -122,8 +121,6 @@ namespace DPA_Musicsheets.Midi
 
                     double percentageOfBar = CalcPercentageOfBar(division, timeSignature.Item2, previousNoteAbsoluteTicks, currentAbsoluteTicks);
                     Tuple<int, int> durationAndDots = GetNoteLength(division, timeSignature.Item1, timeSignature.Item2, percentageOfBar);
-
-                    Console.Out.WriteLine(durationAndDots.Item1);
 
                     midiStaffBuilder.AddNoteDuration(durationAndDots.Item1);
                     midiStaffBuilder.AddDots(durationAndDots.Item2);

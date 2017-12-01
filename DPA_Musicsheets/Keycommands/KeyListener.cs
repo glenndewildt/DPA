@@ -32,8 +32,6 @@ namespace DPA_Musicsheets.keycommands
 
         private System.Windows.Forms.Timer timer;
 
-        private ChainOfResponsibility sequenceHandler = new ChainOfResponsibility();
-
         public KeyListener()
         {
             ResetTimer();
@@ -67,7 +65,6 @@ namespace DPA_Musicsheets.keycommands
             if (currentKeySequence.Count() >= MIN_SEQUENCE_LENGTH)
             {
                 KeySequence seq = new KeySequence("generated sequence", currentKeySequence);
-                sequenceHandler.Handle(seq);
             }
 
             // clean up

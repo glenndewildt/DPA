@@ -42,12 +42,10 @@ namespace DPA_Musicsheets.Managers
 
         private MidiLoader midiLoader;
 
-        private ChainOfResponsibility commands;
 
         public FileHandler()
         {
             midiLoader = new MidiLoader(this);
-            commands = new ChainOfResponsibility();
         }
 
         public void OpenFile(string fileName)
