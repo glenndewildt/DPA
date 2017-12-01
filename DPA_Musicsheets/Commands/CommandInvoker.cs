@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DPA_Musicsheets.Commands
+{
+    public class CommandInvoker
+    {
+        public void ExecuteCommand(ICommand_mb command)
+        {
+            command.Execute();
+        }
+    }
+}
