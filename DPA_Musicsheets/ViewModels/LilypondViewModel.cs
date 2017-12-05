@@ -45,6 +45,7 @@ namespace DPA_Musicsheets.ViewModels
         public LilypondViewModel(FileHandler fileHandler)
         {
             _fileHandler = fileHandler;
+            _lilyEditor = new LilypondEditor(this);
 
             _fileHandler.LilypondTextChanged += (src, e) =>
             {
