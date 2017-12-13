@@ -17,7 +17,9 @@ namespace DPA_Musicsheets.keycommands
         // if the timer runs out, the sequence will be reset and passed onto the keyhandler-chain-of-command
 
         // overall, the design idea is that we use timers to compose a sequence of keys
-        // and pass this "sequence" on to the chain of command to run the right action.
+        // and pass this "sequence" on to the chain of responsibility to run the right action.
+
+        HotkeyChainOfResponsibility hotkeyChainOfResponsibility;
 
         const int SEQUENCE_TIME_CUTOFF_MS = 450; // in milliseconds
 
@@ -39,8 +41,8 @@ namespace DPA_Musicsheets.keycommands
 
         /// <summary>
         /// The timer will fire every 250ms
-        /// if a key has been pressed within this 250ms, it will do nothing
-        /// if nothing has been pressed, it will fire the current sequence of keys
+        /// if a key has been pressed within this 250ms, it will do nothing.
+        /// If nothing has been pressed, it will fire the current sequence of keys
         /// </summary>
         private void ResetTimer()
         {

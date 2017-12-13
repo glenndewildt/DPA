@@ -107,8 +107,10 @@
     <Compile Include="Builders\MidiStaffBuilder.cs" />
     <Compile Include="Commands\CommandInvoker.cs" />
     <Compile Include="Commands\ExampleCommand.cs" />
+    <Compile Include="Commands\InsertTime4_4Command.cs" />
     <Compile Include="Commands\SaveAsLilyCommand.cs" />
     <Compile Include="GlobalConstants.cs" />
+    <Compile Include="Keycommands\HotkeyChainOfResponsibility.cs" />
     <Compile Include="Keycommands\HotkeyHandler.cs" />
     <Compile Include="Keycommands\KeyListener.cs" />
     <Compile Include="Commands\ICommand_mb.cs" />
@@ -139,7 +141,7 @@
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Lilypond\Tokenizer.cs" />
     <Compile Include="Midi\MidiMessageInterpreter.cs" />
-    <Compile Include="ViewModels\LilypondEditor.cs" />
+    <Compile Include="Lilypond\LilypondEditor.cs" />
     <Compile Include="ViewModels\MidiPlayerViewModel.cs" />
     <Compile Include="ViewModels\StaffsViewModel.cs" />
     <Compile Include="Views\MidiPlayerCtrl.xaml.cs">

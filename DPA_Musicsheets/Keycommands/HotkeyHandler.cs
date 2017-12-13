@@ -16,30 +16,4 @@ namespace DPA_Musicsheets.Keycommands
         }
         protected abstract bool CanHandle(KeySequence keys);
     }
-
-    public class InsertBlaCommand : ICommand_mb
-    {
-        public void Execute()
-        {
-            Console.Out.WriteLine("Bla command executed");
-        }
-    }
-
-    public class InsertBlaHandler : HotkeyHandler
-    {
-        private KeySequence _keys;
-
-        public override void Handle(KeySequence keys)
-        {
-            if (CanHandle(keys))
-            {
-                // executeCommand();
-            }
-        }
-
-        protected override bool CanHandle(KeySequence keys)
-        {
-            return _keys.Equals(keys);
-        }
-    }
 }

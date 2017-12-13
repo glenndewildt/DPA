@@ -15,6 +15,7 @@ namespace DPA_Musicsheets.ViewModels
     public class LilypondViewModel : ViewModelBase
     {
         private FileHandler _fileHandler;
+        private LilypondEditor _lilyEditor;
 
         private string _text;
         private string _previousText;
@@ -56,7 +57,7 @@ namespace DPA_Musicsheets.ViewModels
 
             _text = "Your lilypond text will appear here.";
         }
-        
+
         public ICommand TextChangedCommand => new RelayCommand<TextChangedEventArgs>((args) =>
         {
             if (!_textChangedByLoad)
