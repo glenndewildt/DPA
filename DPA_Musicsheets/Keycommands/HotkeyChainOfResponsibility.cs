@@ -15,13 +15,12 @@ namespace DPA_Musicsheets.Keycommands
         {
             if (_firstHandler != null)
             {
-                HotkeyHandler firstSuccessor = _firstHandler.Successor;
-                _firstHandler = handler;
-                _firstHandler.AddNext(firstSuccessor);
-            } else
-            {
-                _firstHandler = handler;
+                HotkeyHandler previousFirst = _firstHandler;
+                handler.AddNext(previousFirst);
             }
+
+            _firstHandler = handler;
+            _lastAdded = handler;
         }
 
         public void AppendHandler(HotkeyHandler handler)
