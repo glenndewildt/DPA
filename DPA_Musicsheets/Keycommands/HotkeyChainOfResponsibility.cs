@@ -11,7 +11,20 @@ namespace DPA_Musicsheets.Keycommands
         private HotkeyHandler _firstHandler;
         private HotkeyHandler _lastAdded;
 
-        public void AddHandler(HotkeyHandler handler)
+        public void AddFirstHandler(HotkeyHandler handler)
+        {
+            if (_firstHandler != null)
+            {
+                HotkeyHandler firstSuccessor = _firstHandler.Successor;
+                _firstHandler = handler;
+                _firstHandler.AddNext(firstSuccessor);
+            } else
+            {
+                _firstHandler = handler;
+            }
+        }
+
+        public void AppendHandler(HotkeyHandler handler)
         {
             if (_firstHandler == null)
             {
