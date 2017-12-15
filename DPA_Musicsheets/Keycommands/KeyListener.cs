@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace DPA_Musicsheets.keycommands
 {
-    class KeyListener
+    public class KeyListener
     {
         // the design of the keylistener is that we'll get keyevents from WPF
         // each time a keydown event is received, a timer is reset (LastKeypressTimestamp)
@@ -19,45 +19,18 @@ namespace DPA_Musicsheets.keycommands
         // overall, the design idea is that we use timers to compose a sequence of keys
         // and pass this "sequence" on to the chain of responsibility to run the right action.
 
-        HotkeyChainOfResponsibility hotkeyChainOfResponsibility;
-
-        const int SEQUENCE_TIME_CUTOFF_MS = 450; // in milliseconds
-
-        private bool KeyHasBeenPressedOnTime = false;
-
-        // automatically fire if a key sequence becomes of length 4
+        // we don't want people to chord commands
         const int MAX_SEQUENCE_LENGTH = 4;
         // {Keys.Z}, {Keys.LeftCtrl}, {Keys.Alt} etc aren't sequences, they're keys.
         const int MIN_SEQUENCE_LENGTH = 2;
 
         List<Key> currentKeySequence = new List<Key>();
 
-        private System.Windows.Forms.Timer timer;
+        private HotkeyChainOfResponsibility _hotkeyChain;
 
-        public KeyListener()
+        public KeyListener(HotkeyChainOfResponsibility keyHandler)
         {
-            ResetTimer();
-        }
-
-        /// <summary>
-        /// The timer will fire every 250ms
-        /// if a key has been pressed within this 250ms, it will do nothing.
-        /// If nothing has been pressed, it will fire the current sequence of keys
-        /// </summary>
-        private void ResetTimer()
-        {
-            timer = new System.Windows.Forms.Timer();
-            timer.Tick += new EventHandler(Timer_Tick);
-            timer.Interval = SEQUENCE_TIME_CUTOFF_MS;
-            timer.Start();
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            if (KeyHasBeenPressedOnTime)
-            {
-                FireSequence();
-            }
+            _hotkeyChain = keyHandler;
         }
 
         public void FireSequence()
@@ -67,11 +40,12 @@ namespace DPA_Musicsheets.keycommands
             if (currentKeySequence.Count() >= MIN_SEQUENCE_LENGTH)
             {
                 KeySequence seq = new KeySequence("generated sequence", currentKeySequence);
+                seq.LogKeysequence();
+                _hotkeyChain.Handle(seq);
             }
 
             // clean up
             currentKeySequence = new List<Key>();
-            KeyHasBeenPressedOnTime = false;
         }
 
         /// <summary>
@@ -81,23 +55,22 @@ namespace DPA_Musicsheets.keycommands
         /// <param name="e"></param>
         internal void KeyDown(KeyEventArgs e)
         {
-            if (currentKeySequence.Count >= MAX_SEQUENCE_LENGTH)
+            if (!e.IsRepeat && currentKeySequence.Count <= MAX_SEQUENCE_LENGTH)
             {
-                FireSequence();
-                return;
+                if (e.Key == Key.System)
+                {
+                    currentKeySequence.Add(e.SystemKey);
+                } else
+                {
+                    currentKeySequence.Add(e.Key);
+                }
             }
-
-            if (!e.IsRepeat)
-            {
-                currentKeySequence.Add(e.Key);
-            }
-            KeyHasBeenPressedOnTime = true;
         }
 
         // probably don't need this one
         internal void KeyUp(KeyEventArgs e)
         {
-            // just ignore these events
+            FireSequence();
         }
     }
 }
