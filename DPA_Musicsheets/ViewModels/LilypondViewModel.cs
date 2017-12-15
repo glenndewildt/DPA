@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using DPA_Musicsheets.Keycommands;
+using DPA_Musicsheets.keycommands;
 
 namespace DPA_Musicsheets.ViewModels
 {
@@ -17,6 +19,9 @@ namespace DPA_Musicsheets.ViewModels
     {
         private FileHandler _fileHandler;
         private LilypondEditor _lilyEditor;
+
+        private HotkeyChainOfResponsibility _hotkeyChain;
+        private KeyListener _keyListener;
 
         private string _text;
         private string _previousText;
@@ -47,7 +52,6 @@ namespace DPA_Musicsheets.ViewModels
         public LilypondViewModel(FileHandler fileHandler)
         {
             _fileHandler = fileHandler;
-            _lilyEditor = new LilypondEditor(this);
 
             _fileHandler.LilypondTextChanged += (src, e) =>
             {
@@ -56,8 +60,22 @@ namespace DPA_Musicsheets.ViewModels
                 _textChangedByLoad = false;
             };
 
+            _hotkeyChain = new HotkeyChainOfResponsibility();
+            _keyListener = new KeyListener(_hotkeyChain);
+            _lilyEditor = new LilypondEditor(this, _hotkeyChain);
+
             _text = "Your lilypond text will appear here.";
         }
+
+        public ICommand OnKeyDownCommand => new RelayCommand<KeyEventArgs>((e) =>
+        {
+            _keyListener.KeyDown(e);
+        });
+
+        public ICommand OnKeyUpCommand => new RelayCommand<KeyEventArgs>((e) =>
+        {
+            _keyListener.KeyUp(e);
+        });
 
         public ICommand TextChangedCommand => new RelayCommand<TextChangedEventArgs>((args) =>
         {

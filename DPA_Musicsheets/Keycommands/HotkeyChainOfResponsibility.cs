@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Keycommands
 {
-    class HotkeyChainOfResponsibility
+    public class HotkeyChainOfResponsibility
     {
         private HotkeyHandler _firstHandler;
         private HotkeyHandler _lastAdded;
+
+        public HotkeyHandler FirstInChain { get => _firstHandler; }
 
         public void AddFirstHandler(HotkeyHandler handler)
         {
@@ -34,6 +36,14 @@ namespace DPA_Musicsheets.Keycommands
             }
 
             _lastAdded = handler;
+        }
+
+        internal void Handle(KeySequence seq)
+        {
+            if (_firstHandler != null)
+            {
+                _firstHandler.Handle(seq);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DPA_Musicsheets.Commands;
+using DPA_Musicsheets.Keycommands;
 using DPA_Musicsheets.ViewModels;
 using GalaSoft.MvvmLight;
 using System;
@@ -13,17 +14,21 @@ namespace DPA_Musicsheets.LilyPond
     class LilypondEditor
     {
         private LilypondViewModel _lilypondViewModel;
+        private HotkeyChainOfResponsibility _hotkeyChain;
 
-        public LilypondEditor(LilypondViewModel lilypondViewModel)
+        public LilypondEditor(LilypondViewModel lilypondViewModel, HotkeyChainOfResponsibility hotkeyChain)
         {
             _lilypondViewModel = lilypondViewModel;
+            _hotkeyChain = hotkeyChain;
+
+            InitializeEditorHotkeys();
         }
 
-        public void InitializeEditorHotkeys()
+        private void InitializeEditorHotkeys()
         {
-            InsertTime4_4Command timeCommand = new InsertTime4_4Command(this);
-
-           
+            ICommand_mb cmd1 = new InsertTime4_4Command(this);
+            HotkeyHandler h1 = new InsertTime4_4Handler(cmd1);
+            _hotkeyChain.AppendHandler(h1);           
         }
 
         private List<string> SplitByNewlines(string text)
