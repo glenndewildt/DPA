@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace DPA_Musicsheets.Lilypond
+namespace DPA_Musicsheets.LilyPond
 {
     class LilypondEditor
     {

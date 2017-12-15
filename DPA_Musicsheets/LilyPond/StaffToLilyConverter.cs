@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DPA_Musicsheets.Models;
 
-namespace DPA_Musicsheets.Lilypond
+namespace DPA_Musicsheets.LilyPond
 {
     public class StaffToLilyConverter
     {

@@ -4,7 +4,7 @@ using DPA_Musicsheets.Models;
 using Sanford.Multimedia.Midi;
 using DPA_Musicsheets.Midi;
 using DPA_Musicsheets.Managers;
-using DPA_Musicsheets.Lilypond;
+using DPA_Musicsheets.LilyPond;
 
 namespace Tests
 {

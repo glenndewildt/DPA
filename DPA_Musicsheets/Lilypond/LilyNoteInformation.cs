@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DPA_Musicsheets.Lilypond
+namespace DPA_Musicsheets.LilyPond
 {
     public class LilyNoteInformation : MusicalComponentExtension
     {
