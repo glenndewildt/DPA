@@ -67,6 +67,32 @@ namespace DPA_Musicsheets.ViewModels
             _text = "Your lilypond text will appear here.";
         }
 
+        /*
+         * 
+         * this code is something that could work if I had a reference to the TextBox element, where
+         * "this.view" would be that reference.
+        public string getCurrentSelection()
+        {
+            return this.view.Dispatcher.Invoke(() => {
+                return this.view.SelectedText;
+            });
+        }
+
+        public void setCurrentIndex(int index)
+        {
+            this.view.Dispatcher.Invoke(() => {
+                this.view.SelectionStart = index;
+            });
+        }
+
+        public int getCurrentIndex()
+        {
+            return this.view.Dispatcher.Invoke(() => {
+                return this.view.SelectionStart;
+            });
+        }
+        */
+
         public ICommand OnKeyDownCommand => new RelayCommand<KeyEventArgs>((e) =>
         {
             _keyListener.KeyDown(e);
@@ -76,7 +102,7 @@ namespace DPA_Musicsheets.ViewModels
         {
             _keyListener.KeyUp(e);
         });
-
+        
         public ICommand TextChangedCommand => new RelayCommand<TextChangedEventArgs>((args) =>
         {
             if (!_textChangedByLoad)

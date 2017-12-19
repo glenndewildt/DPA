@@ -65,6 +65,7 @@ namespace DPA_Musicsheets.LilyPond
 
         public void InsertTextAfterCursor(string text)
         {
+            Console.Out.WriteLine("Inserting text after cursor '" + text + "'");
             //_lilyPondTextEditorXAML.Text.Insert(_lilyPondTextEditorXAML.CaretIndex, text);
         }
     }
