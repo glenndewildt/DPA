@@ -9,7 +9,7 @@ namespace DPA_Musicsheets.Commands
 {
     class InsertTime4_4Command : ICommand_mb
     {
-        private string text = "time = 4 / 4";
+        private string text = @"\time 4/4";
         private LilypondEditor _lilyEditor;
 
         public InsertTime4_4Command(LilypondEditor lilyEditor)
@@ -20,6 +20,7 @@ namespace DPA_Musicsheets.Commands
         public void Execute()
         {
             _lilyEditor.InsertTextAfterCursor(text);
+            _lilyEditor.AddBookmark(_lilyEditor.SaveStateToMemento());
         }
     }
 }

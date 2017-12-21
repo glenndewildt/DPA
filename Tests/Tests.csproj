@@ -58,8 +58,8 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lilypond\LilypondEditorBookmarksTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LilyConversionTester.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,5 +1,6 @@
 ﻿using DPA_Musicsheets.Commands;
 using DPA_Musicsheets.Keycommands;
+using DPA_Musicsheets.Lilypond;
 using DPA_Musicsheets.ViewModels;
 using GalaSoft.MvvmLight;
 using System;
@@ -13,22 +14,39 @@ namespace DPA_Musicsheets.LilyPond
 {
     class LilypondEditor
     {
-        private LilypondViewModel _lilypondViewModel;
         private HotkeyChainOfResponsibility _hotkeyChain;
 
-        public LilypondEditor(LilypondViewModel lilypondViewModel, HotkeyChainOfResponsibility hotkeyChain)
+        private string text;
+        private TextBox _textBox;
+
+        private LilypondEditorBookmarks _bookmarks = new LilypondEditorBookmarks();
+
+        public LilypondEditor(HotkeyChainOfResponsibility hotkeyChain, TextBox textBox)
         {
-            _lilypondViewModel = lilypondViewModel;
             _hotkeyChain = hotkeyChain;
 
+            _textBox = textBox;
+            _bookmarks.AddBookmark(new LilypondEditorMemento(""));
+
             InitializeEditorHotkeys();
+        }
+
+        public string GetText()
+        {
+            return text;
+        }
+
+        public void SetText(string text)
+        {
+            this.text = text;
+            _textBox.Text = text;
         }
 
         private void InitializeEditorHotkeys()
         {
             ICommand_mb cmd1 = new InsertTime4_4Command(this);
             HotkeyHandler h1 = new InsertTime4_4Handler(cmd1);
-            _hotkeyChain.AppendHandler(h1);           
+            _hotkeyChain.AppendHandler(h1);
         }
 
         private List<string> SplitByNewlines(string text)
@@ -40,11 +58,17 @@ namespace DPA_Musicsheets.LilyPond
                 StringSplitOptions.None
             );
 
-            foreach (var line in _arrayLines) {
+            foreach (var line in _arrayLines)
+            {
                 lines.Add(line);
             }
 
             return lines;
+        }
+
+        public void ClearBookmarkHistory()
+        {
+            _bookmarks.Clear();
         }
 
         private string JoinByNewlines(List<string> lines)
@@ -52,21 +76,55 @@ namespace DPA_Musicsheets.LilyPond
             return String.Join(Environment.NewLine, lines);
         }
 
-        public void InsertTextBeforeLine(int i, string text)
-        {
-            string editorTxtBefore = _lilypondViewModel.LilypondText;
-
-            List<string> lines = SplitByNewlines(text);
-            // insert the new text
-            lines.Insert(i, text);
-
-            _lilypondViewModel.LilypondText = JoinByNewlines(lines);
-        }
-
         public void InsertTextAfterCursor(string text)
         {
-            Console.Out.WriteLine("Inserting text after cursor '" + text + "'");
-            //_lilyPondTextEditorXAML.Text.Insert(_lilyPondTextEditorXAML.CaretIndex, text);
+            int beforeIndex = _textBox.SelectionStart;
+            // textBox.Text = textBox.Text.Insert(beforeIndex, text);
+            SetText(_textBox.Text.Insert(beforeIndex, text));
+            _textBox.SelectionStart = beforeIndex;
         }
+
+        internal void debugBookmarks()
+        {
+            Console.Out.WriteLine(_bookmarks.ToString());
+        }
+
+        #region Memento pattern
+        public LilypondEditorMemento SaveStateToMemento()
+        {
+            return new LilypondEditorMemento(text);
+        }
+
+        public void LoadStateFromMemento(LilypondEditorMemento memento)
+        {
+            text = memento.text;
+            _textBox.Text = text;
+        }
+
+        public void AddBookmark(LilypondEditorMemento memento)
+        {
+            _bookmarks.AddBookmark(memento);
+        }
+
+        public void Undo()
+        {
+            LoadStateFromMemento(_bookmarks.GoBackOne());
+        }
+
+        public bool CanUndo()
+        {
+            return _bookmarks.CanUndo();
+        }
+
+        public void Redo()
+        {
+            LoadStateFromMemento(_bookmarks.GoForwardOne());
+        }
+
+        public bool CanRedo()
+        {
+            return _bookmarks.CanRedo();
+        }
+        #endregion
     }
 }

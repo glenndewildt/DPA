@@ -91,7 +91,7 @@ namespace DPA_Musicsheets.Midi
             StaffToLilyConverter toLily = new StaffToLilyConverter();
 
             fileHandler.staff = staff;
-            fileHandler.LoadLilypond(toLily.Convert(staff));
+            fileHandler.LoadLilypond(toLily.Convert(staff), true);
         }
 
         private void ParseChannel(int division, ref int previousMidiKey, ref int previousNoteAbsoluteTicks, ref double percentageOfBarReached, ref bool startedNoteIsClosed, Tuple<int, int> timeSignature, MidiEvent midiEvent)

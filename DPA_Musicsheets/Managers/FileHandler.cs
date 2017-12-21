@@ -27,21 +27,22 @@ namespace DPA_Musicsheets.Managers
             set
             {
                 _lilypondText = value;
-                LilypondTextChanged?.Invoke(this, new LilypondEventArgs() { LilypondText = value });
             }
         }
+
+        
         public List<MusicalSymbol> WPFStaffs { get; set; } = new List<MusicalSymbol>();
 
         public Sequence MidiSequence { get; set; }
 
-        public event EventHandler<LilypondEventArgs> LilypondTextChanged;
+        public event EventHandler<LilypondLoadedEventArgs> LilypondLoaded;
+
         public event EventHandler<WPFStaffsEventArgs> WPFStaffsChanged;
         public event EventHandler<MidiSequenceEventArgs> MidiSequenceChanged;
 
         public Staff staff;
 
         private MidiLoader midiLoader;
-
 
         public FileHandler()
         {
@@ -61,9 +62,13 @@ namespace DPA_Musicsheets.Managers
             this.midiLoader.LoadMidi(this.MidiSequence);
         }
 
-        public void LoadLilypond(string content)
+        public void LoadLilypond(string content, bool fireLoadedEvent=false)
         {
-            LilypondText = content;
+            if (fireLoadedEvent)
+            {
+                LilypondLoaded?.Invoke(this, new LilypondLoadedEventArgs { LilypondText = content });
+            }
+            
             content = content.Trim().ToLower().Replace("\r\n", " ").Replace("\n", " ").Replace("  ", " ");
             LinkedList<LilypondToken> tokens = GetTokensFromLilypond(content);
             WPFStaffs.Clear();

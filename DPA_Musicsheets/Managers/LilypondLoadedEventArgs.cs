@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace DPA_Musicsheets.Managers
+﻿namespace DPA_Musicsheets.Managers
 {
-    public class LilypondEventArgs : EventArgs
+    public class LilypondLoadedEventArgs
     {
         public string LilypondText { get; set; }
         public string Message { get; set; }

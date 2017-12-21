@@ -23,75 +23,35 @@ namespace DPA_Musicsheets.ViewModels
         private HotkeyChainOfResponsibility _hotkeyChain;
         private KeyListener _keyListener;
 
-        private string _text;
-        private string _previousText;
-        private string _nextText;
-
-        public string LilypondText
-        {
-            get
-            {
-                return _text;
-            }
-            set
-            {
-                if (!_waitingForRender && !_textChangedByLoad)
-                {
-                    _previousText = _text;
-                }
-                _text = value;
-                RaisePropertyChanged(() => LilypondText);
-            }
-        }
-
         private bool _textChangedByLoad = false;
         private DateTime _lastChange;
         private static int MILLISECONDS_BEFORE_CHANGE_HANDLED = 1500;
-        private bool _waitingForRender = false;
+        private bool _textChangedByUndoRedo;
 
         public LilypondViewModel(FileHandler fileHandler)
         {
             _fileHandler = fileHandler;
 
-            _fileHandler.LilypondTextChanged += (src, e) =>
+            _fileHandler.LilypondLoaded += (src, e) =>
             {
                 _textChangedByLoad = true;
-                LilypondText = _previousText = e.LilypondText;
+                _lilyEditor.ClearBookmarkHistory();
+                _lilyEditor.SetText(e.LilypondText);
+                _lilyEditor.AddBookmark(_lilyEditor.SaveStateToMemento());
                 _textChangedByLoad = false;
             };
 
             _hotkeyChain = new HotkeyChainOfResponsibility();
             _keyListener = new KeyListener(_hotkeyChain);
-            _lilyEditor = new LilypondEditor(this, _hotkeyChain);
-
-            _text = "Your lilypond text will appear here.";
         }
 
-        /*
-         * 
-         * this code is something that could work if I had a reference to the TextBox element, where
-         * "this.view" would be that reference.
-        public string getCurrentSelection()
+        public ICommand LoadedCommand => new RelayCommand<RoutedEventArgs>(args =>
         {
-            return this.view.Dispatcher.Invoke(() => {
-                return this.view.SelectedText;
-            });
-        }
+            TextBox textBox = (TextBox)args.OriginalSource;
 
-        public void setCurrentIndex(int index)
-        {
-            this.view.Dispatcher.Invoke(() => {
-                this.view.SelectionStart = index;
-            });
-        }
-
-        public int getCurrentIndex()
-        {
-            return this.view.Dispatcher.Invoke(() => {
-                return this.view.SelectionStart;
-            });
-        }
-        */
+            _lilyEditor = new LilypondEditor(_hotkeyChain, textBox);
+            _lilyEditor.SetText("Your lilypond text will appear here.");
+        });
 
         public ICommand OnKeyDownCommand => new RelayCommand<KeyEventArgs>((e) =>
         {
@@ -102,12 +62,18 @@ namespace DPA_Musicsheets.ViewModels
         {
             _keyListener.KeyUp(e);
         });
+
+        public ICommand SelectionChangedCommand => new RelayCommand(() =>
+        {
+            _lilyEditor.debugBookmarks();
+        });
         
         public ICommand TextChangedCommand => new RelayCommand<TextChangedEventArgs>((args) =>
         {
+            TextBox textBox = (TextBox)args.OriginalSource;
+
             if (!_textChangedByLoad)
             {
-                _waitingForRender = true;
                 _lastChange = DateTime.Now;
                 MessengerInstance.Send<CurrentStateMessage>(new CurrentStateMessage() { State = "Rendering..." });
 
@@ -115,15 +81,35 @@ namespace DPA_Musicsheets.ViewModels
                 {
                     if ((DateTime.Now - _lastChange).TotalMilliseconds >= MILLISECONDS_BEFORE_CHANGE_HANDLED)
                     {
-                        _waitingForRender = false;
-                        UndoCommand.RaiseCanExecuteChanged();
+                        _lilyEditor.SetText(textBox.Text);
+                        if (_textChangedByUndoRedo)
+                        {
+                            _textChangedByUndoRedo = false;
+                        } else
+                        {
+                            _lilyEditor.AddBookmark(_lilyEditor.SaveStateToMemento());
+                        }
 
-                        _fileHandler.LoadLilypond(LilypondText);
+                        // handles the generation of the graphical notes representation
+                        _fileHandler.LoadLilypond(textBox.Text);
                     }
                 }, TaskScheduler.FromCurrentSynchronizationContext()); // Request from main thread.
             }
         });
 
+        public RelayCommand UndoCommand => new RelayCommand(() =>
+        {
+            _lilyEditor.Undo();
+            _textChangedByUndoRedo = true;
+        }, () => _lilyEditor != null && _lilyEditor.CanUndo());
+
+        public RelayCommand RedoCommand => new RelayCommand(() =>
+        {
+            _lilyEditor.Redo();
+            _textChangedByUndoRedo = true;
+        }, () => _lilyEditor != null && _lilyEditor.CanRedo());
+
+        /*
         public RelayCommand UndoCommand => new RelayCommand(() =>
         {
             _nextText = LilypondText;
@@ -138,6 +124,7 @@ namespace DPA_Musicsheets.ViewModels
             _nextText = null;
             RedoCommand.RaiseCanExecuteChanged();
         }, () => _nextText != LilypondText);
+        */
 
         public ICommand SaveAsCommand => new RelayCommand(() =>
         {

@@ -26,7 +26,7 @@ namespace DPA_Musicsheets.Managers
 
             _handler.LilypondText = sb.ToString();
 
-            _handler.LoadLilypond(sb.ToString());
+            _handler.LoadLilypond(sb.ToString(), true);
         }
     }
 }
