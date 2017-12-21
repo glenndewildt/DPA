@@ -60,6 +60,10 @@ namespace DPA_Musicsheets.LilyPond
             ICommand_mb cmd4 = new InsertTime3_4Command(this);
             HotkeyHandler h4 = new InsertTime3_4Handler(cmd4);
             _hotkeyChain.AppendHandler(h4);
+
+            ICommand_mb cmd5 = new InsertTime6_8Command(this);
+            HotkeyHandler h5 = new InsertTime6_8Handler(cmd5);
+            _hotkeyChain.AppendHandler(h5);
         }
 
         private List<string> SplitByNewlines(string text)

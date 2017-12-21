@@ -109,6 +109,7 @@
     <Compile Include="Commands\ExampleCommand.cs" />
     <Compile Include="Commands\InsertTime3_4Command.cs" />
     <Compile Include="Commands\InsertTime4_4Command.cs" />
+    <Compile Include="Commands\InsertTime6_8Command.cs" />
     <Compile Include="Commands\InsertTrebleCleffCommand.cs" />
     <Compile Include="Commands\SaveAsLilyCommand.cs" />
     <Compile Include="GlobalConstants.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Keycommands\InsertTime3_4Handler.cs" />
     <Compile Include="Keycommands\InsertTime4_4Handler.cs" />
     <Compile Include="Keycommands\InsertTime4_4Handler2.cs" />
+    <Compile Include="Keycommands\InsertTime6_8Handler.cs" />
     <Compile Include="Keycommands\InsertTrebleCleffHandler.cs" />
     <Compile Include="Keycommands\KeyListener.cs" />
     <Compile Include="Commands\ICommand_mb.cs" />
