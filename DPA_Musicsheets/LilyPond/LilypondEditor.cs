@@ -47,6 +47,10 @@ namespace DPA_Musicsheets.LilyPond
             ICommand_mb cmd1 = new InsertTime4_4Command(this);
             HotkeyHandler h1 = new InsertTime4_4Handler(cmd1);
             _hotkeyChain.AppendHandler(h1);
+
+            ICommand_mb cmd2 = new InsertTrebleCleffCommand(this);
+            HotkeyHandler h2 = new InsertTrebleCleffHandler(cmd2);
+            _hotkeyChain.AppendHandler(h2);
         }
 
         private List<string> SplitByNewlines(string text)

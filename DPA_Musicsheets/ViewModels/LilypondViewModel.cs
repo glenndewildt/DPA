@@ -109,23 +109,6 @@ namespace DPA_Musicsheets.ViewModels
             _textChangedByUndoRedo = true;
         }, () => _lilyEditor != null && _lilyEditor.CanRedo());
 
-        /*
-        public RelayCommand UndoCommand => new RelayCommand(() =>
-        {
-            _nextText = LilypondText;
-            LilypondText = _previousText;
-            _previousText = null;
-        }, () => _previousText != LilypondText);
-
-        public RelayCommand RedoCommand => new RelayCommand(() =>
-        {
-            _previousText = LilypondText;
-            LilypondText = _nextText;
-            _nextText = null;
-            RedoCommand.RaiseCanExecuteChanged();
-        }, () => _nextText != LilypondText);
-        */
-
         public ICommand SaveAsCommand => new RelayCommand(() =>
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog() { Filter = "Midi|*.mid|Lilypond|*.ly|PDF|*.pdf" };

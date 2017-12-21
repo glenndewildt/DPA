@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.Keycommands
 {
-    class InsertTime4_4Handler : HotkeyHandler
+    class InsertTrebleCleffHandler : HotkeyHandler
     {
-        private KeySequence _pattern = KeysequenceDefinitions.ALT_T;
+        private KeySequence _pattern = KeysequenceDefinitions.ALT_C;
         private ICommand_mb _cmd;
 
-        public InsertTime4_4Handler(ICommand_mb cmd)
+        public InsertTrebleCleffHandler(ICommand_mb cmd)
         {
             _cmd = cmd;
         }
