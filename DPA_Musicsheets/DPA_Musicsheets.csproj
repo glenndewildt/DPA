@@ -107,6 +107,7 @@
     <Compile Include="Builders\MidiStaffBuilder.cs" />
     <Compile Include="Commands\CommandInvoker.cs" />
     <Compile Include="Commands\ExampleCommand.cs" />
+    <Compile Include="Commands\InsertTempoCommand.cs" />
     <Compile Include="Commands\InsertTime3_4Command.cs" />
     <Compile Include="Commands\InsertTime4_4Command.cs" />
     <Compile Include="Commands\InsertTime6_8Command.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="GlobalConstants.cs" />
     <Compile Include="Keycommands\HotkeyChainOfResponsibility.cs" />
     <Compile Include="Keycommands\HotkeyHandler.cs" />
+    <Compile Include="Keycommands\InsertTempoHandler.cs" />
     <Compile Include="Keycommands\InsertTime3_4Handler.cs" />
     <Compile Include="Keycommands\InsertTime4_4Handler.cs" />
     <Compile Include="Keycommands\InsertTime4_4Handler2.cs" />
