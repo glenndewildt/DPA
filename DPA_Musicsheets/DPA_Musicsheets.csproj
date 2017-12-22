@@ -130,6 +130,11 @@
     <Compile Include="Lilypond\LilypondEditorBookmarks.cs" />
     <Compile Include="Lilypond\LilypondEditorMemento.cs" />
     <Compile Include="Lilypond\LilypondToken.cs" />
+    <Compile Include="Lilypond\parser\TokenMatcher.cs" />
+    <Compile Include="Lilypond\parser\LilyLexer.cs" />
+    <Compile Include="Lilypond\parser\LilyParser.cs" />
+    <Compile Include="Lilypond\parser\LilyToken.cs" />
+    <Compile Include="Lilypond\parser\LilyTokenizer.cs" />
     <Compile Include="Lilypond\StaffToLilyConverter.cs" />
     <Compile Include="Managers\AbstractFileOpener.cs" />
     <Compile Include="Managers\FileOpenerFactory.cs" />
