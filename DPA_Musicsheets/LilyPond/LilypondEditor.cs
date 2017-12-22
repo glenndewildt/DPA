@@ -42,6 +42,11 @@ namespace DPA_Musicsheets.LilyPond
             _textBox.Text = text;
         }
 
+        internal string GetSelectedText()
+        {
+            return _textBox.SelectedText;
+        }
+
         private void InitializeEditorHotkeys()
         {
             ICommand_mb cmd1 = new InsertTime4_4Command(this);
@@ -52,7 +57,7 @@ namespace DPA_Musicsheets.LilyPond
             HotkeyHandler h2 = new InsertTrebleCleffHandler(cmd2);
             _hotkeyChain.AppendHandler(h2);
 
-            // don't really need to make a new one, can reuse cmd1
+            // don't really need to make a new command, can reuse cmd1
             ICommand_mb cmd3 = new InsertTime4_4Command(this);
             HotkeyHandler h3 = new InsertTime4_4Handler2(cmd3);
             _hotkeyChain.AppendHandler(h3);
@@ -68,6 +73,10 @@ namespace DPA_Musicsheets.LilyPond
             ICommand_mb cmd6 = new InsertTempoCommand(this);
             HotkeyHandler h6 = new InsertTempoHandler(cmd6);
             _hotkeyChain.AppendHandler(h6);
+
+            ICommand_mb cmd7 = new InsertBarsWhereMissingCommand(this);
+            HotkeyHandler h7 = new InsertBarsWhereMissingHandler(cmd7);
+            _hotkeyChain.AppendHandler(h7);
         }
 
         private List<string> SplitByNewlines(string text)
@@ -103,6 +112,11 @@ namespace DPA_Musicsheets.LilyPond
             // textBox.Text = textBox.Text.Insert(beforeIndex, text);
             SetText(_textBox.Text.Insert(beforeIndex, text));
             _textBox.SelectionStart = beforeIndex;
+        }
+
+        public void SetSelectedText(string newText)
+        {
+            _textBox.SelectedText = newText;
         }
 
         internal void debugBookmarks()
