@@ -1,6 +1,7 @@
 ﻿using DPA_Musicsheets.Commands;
 using DPA_Musicsheets.Keycommands;
 using DPA_Musicsheets.Lilypond;
+using DPA_Musicsheets.Managers;
 using DPA_Musicsheets.ViewModels;
 using GalaSoft.MvvmLight;
 using System;
@@ -19,13 +20,16 @@ namespace DPA_Musicsheets.LilyPond
         private string text;
         private TextBox _textBox;
 
+        private FileHandler _fileHandler;
+
         private LilypondEditorBookmarks _bookmarks = new LilypondEditorBookmarks();
 
-        public LilypondEditor(HotkeyChainOfResponsibility hotkeyChain, TextBox textBox)
+        public LilypondEditor(HotkeyChainOfResponsibility hotkeyChain, TextBox textBox, FileHandler fileHandler)
         {
             _hotkeyChain = hotkeyChain;
-
+            _fileHandler = fileHandler;
             _textBox = textBox;
+
             _bookmarks.AddBookmark(new LilypondEditorMemento(""));
 
             InitializeEditorHotkeys();
@@ -77,6 +81,18 @@ namespace DPA_Musicsheets.LilyPond
             ICommand_mb cmd7 = new InsertBarsWhereMissingCommand(this);
             HotkeyHandler h7 = new InsertBarsWhereMissingHandler(cmd7);
             _hotkeyChain.AppendHandler(h7);
+
+            ICommand_mb cmd8 = new SaveAsLilyCommand(_fileHandler, this);
+            HotkeyHandler h8 = new SaveAsLilyHandler(cmd8);
+            _hotkeyChain.AppendHandler(h8);
+
+            ICommand_mb cmd9 = new SaveAsPDFCommand(_fileHandler, this);
+            HotkeyHandler h9 = new SaveAsPDFHandler(cmd9);
+            _hotkeyChain.AppendHandler(h9);
+
+            ICommand_mb cmd10 = new OpenFileCommand(_fileHandler);
+            HotkeyHandler h10 = new OpenFileHandler(cmd10);
+            _hotkeyChain.AppendHandler(h10);
         }
 
         private List<string> SplitByNewlines(string text)

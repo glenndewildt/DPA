@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DPA_Musicsheets.Commands;
 using DPA_Musicsheets.Keycommands;
+using Microsoft.Win32;
 
 namespace DPA_Musicsheets.Managers
 {
@@ -29,16 +30,17 @@ namespace DPA_Musicsheets.Managers
                 _lilypondText = value;
             }
         }
-
         
         public List<MusicalSymbol> WPFStaffs { get; set; } = new List<MusicalSymbol>();
 
         public Sequence MidiSequence { get; set; }
 
         public event EventHandler<LilypondLoadedEventArgs> LilypondLoaded;
-
+   
         public event EventHandler<WPFStaffsEventArgs> WPFStaffsChanged;
         public event EventHandler<MidiSequenceEventArgs> MidiSequenceChanged;
+
+        public event EventHandler<FileOpenedEventArgs> FileOpened;
 
         public Staff staff;
 
@@ -322,11 +324,25 @@ namespace DPA_Musicsheets.Managers
             return sequence;
         }
 
-        internal void SaveToPDF(string fileName)
+        public string ShowOpenFileDialog()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Midi or LilyPond files (*.mid *.ly)|*.mid;*.ly" };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // why the ?, events shouldn't be null anyway, right?
+                string fileName = openFileDialog.FileName;
+                FileOpened?.Invoke(this, new FileOpenedEventArgs() { fileName = fileName });
+
+                return openFileDialog.FileName;
+            }
+            return "";
+        }
+
+        internal void SaveToPDF(string fileName, string lilypondText)
         {
             string withoutExtension = Path.GetFileNameWithoutExtension(fileName);
             string tmpFileName = $"{fileName}-tmp.ly";
-            SaveToLilypond(tmpFileName);
+            SaveToLilypond(tmpFileName, lilypondText);
 
             string lilypondLocation = @"C:\Program Files (x86)\LilyPond\usr\bin\lilypond.exe";
             string sourceFolder = Path.GetDirectoryName(tmpFileName);
@@ -345,7 +361,14 @@ namespace DPA_Musicsheets.Managers
                 }
             };
 
-            process.Start();
+            try
+            {
+                process.Start();
+            } catch (Exception) {
+                // lily executable does not exist :(
+                // should show error dialog.
+            }
+
             while (!process.HasExited)
             { /* Wait for exit */
             }
@@ -356,11 +379,11 @@ namespace DPA_Musicsheets.Managers
             }
         }
 
-        internal void SaveToLilypond(string fileName)
+        internal void SaveToLilypond(string fileName, string lilypondText)
         {
             using (StreamWriter outputFile = new StreamWriter(fileName))
             {
-                outputFile.Write(LilypondText);
+                outputFile.Write(lilypondText);
                 outputFile.Close();
             }
         }

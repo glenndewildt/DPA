@@ -46,21 +46,22 @@ namespace DPA_Musicsheets.ViewModels
             FileName = @"Files/Alle-eendjes-zwemmen-in-het-water.mid";
 
             MessengerInstance.Register<CurrentStateMessage>(this, (message) => CurrentState = message.State);
+
+            _fileHandler.FileOpened += OnFileOpened;
         }
 
-        public ICommand OpenFileCommand => new RelayCommand(() =>
+        private void OnFileOpened(object sender, FileOpenedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Midi or LilyPond files (*.mid *.ly)|*.mid;*.ly" };
-            if (openFileDialog.ShowDialog() == true)
-            {
-                FileName = openFileDialog.FileName;
-            }
-        });
-        public ICommand LoadCommand => new RelayCommand(() =>
+            FileName = e.fileName;
+        }
+
+        public void LoadFile()
         {
             _fileHandler.OpenFile(FileName);
-        });
-        
+        }
+
+        public ICommand LoadCommand => new RelayCommand(LoadFile);
+
         public ICommand OnLostFocusCommand => new RelayCommand(() =>
         {
             Console.WriteLine("Maingrid Lost focus");

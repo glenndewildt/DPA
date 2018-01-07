@@ -133,7 +133,8 @@ namespace DPA_Musicsheets.LilyPond.parser
             {
                 if (token.Type.type == "TOKEN_UNKNOWN")
                 {
-                    concatenated.Append("\n");
+                    concatenated.Append(token.Token);
+                    //concatenated.Append("\n");
                 }
                 else
                 {

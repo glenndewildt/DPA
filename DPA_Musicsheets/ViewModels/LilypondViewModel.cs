@@ -49,7 +49,7 @@ namespace DPA_Musicsheets.ViewModels
         {
             TextBox textBox = (TextBox)args.OriginalSource;
 
-            _lilyEditor = new LilypondEditor(_hotkeyChain, textBox);
+            _lilyEditor = new LilypondEditor(_hotkeyChain, textBox, _fileHandler);
             _lilyEditor.SetText("Your lilypond text will appear here.");
         });
 
@@ -119,13 +119,9 @@ namespace DPA_Musicsheets.ViewModels
                 {
                     _fileHandler.SaveToMidi(saveFileDialog.FileName);
                 }
-                else if (extension.EndsWith(".ly"))
-                {
-                    _fileHandler.SaveToLilypond(saveFileDialog.FileName);
-                }
                 else if (extension.EndsWith(".pdf"))
                 {
-                    _fileHandler.SaveToPDF(saveFileDialog.FileName);
+                    _fileHandler.SaveToPDF(saveFileDialog.FileName, _lilyEditor.GetText());
                 }
                 else
                 {
