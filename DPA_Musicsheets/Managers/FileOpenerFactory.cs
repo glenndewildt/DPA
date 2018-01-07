@@ -10,33 +10,31 @@ namespace DPA_Musicsheets.Managers
     public class FileOpenerFactory
     {
         private FileHandler _handler;
+        private Dictionary<string, AbstractFileOpener> openers = new Dictionary<string, AbstractFileOpener>();
 
         public FileOpenerFactory(FileHandler handler)
         {
             _handler = handler;
+            InitializeOpeners();
+        }
+
+        private void InitializeOpeners()
+        {
+            openers.Add(".ly", new LilyOpener(_handler));
+            openers.Add(".mid", new MidiOpener(_handler));
         }
 
         public AbstractFileOpener GetOpener(string fileName)
         {
-            AbstractFileOpener opener;
             string extension = Path.GetExtension(fileName);
 
-
-
-            if (extension.EndsWith(".mid"))
+            if (openers.ContainsKey(extension))
             {
-                opener = new MidiOpener(_handler);
-            }
-            else if (extension.EndsWith(".ly"))
-            {
-                opener = new LilyOpener(_handler);
-            }
-            else
+                return openers[extension];
+            } else
             {
                 throw new Exception("Extension `" + Path.GetExtension(fileName) + "` is not supported");
             }
-
-            return opener;
         }
     }
 }
