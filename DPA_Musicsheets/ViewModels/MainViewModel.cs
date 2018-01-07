@@ -60,6 +60,11 @@ namespace DPA_Musicsheets.ViewModels
             _fileHandler.OpenFile(FileName);
         }
 
+        public ICommand OpenFileCommand => new RelayCommand(() =>
+        {
+            _fileHandler.ShowOpenFileDialog();
+        });
+
         public ICommand LoadCommand => new RelayCommand(LoadFile);
 
         public ICommand OnLostFocusCommand => new RelayCommand(() =>
