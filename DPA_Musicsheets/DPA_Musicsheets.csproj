@@ -105,8 +105,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Builders\MidiStaffBuilder.cs" />
-    <Compile Include="Commands\CommandInvoker.cs" />
-    <Compile Include="Commands\ExampleCommand.cs" />
     <Compile Include="Commands\InsertBarsWhereMissingCommand.cs" />
     <Compile Include="Commands\InsertTempoCommand.cs" />
     <Compile Include="Commands\InsertTime3_4Command.cs" />
@@ -225,7 +223,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="Overview.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

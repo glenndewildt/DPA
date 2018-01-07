@@ -21,6 +21,8 @@ namespace DPA_Musicsheets.Managers
             AbstractFileOpener opener;
             string extension = Path.GetExtension(fileName);
 
+
+
             if (extension.EndsWith(".mid"))
             {
                 opener = new MidiOpener(_handler);
